@@ -1,17 +1,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 	<channel>
 		<title>General on My New Hugo Site</title>
-		<link>http://example.org/categories/general/</link>
+		<link>http://ngoldbaum.github.io/categories/general/</link>
 		<description>Recent content in General on My New Hugo Site</description>
 		<generator>Hugo 0.55.6 -- gohugo.io</generator>
 		<language>en-us</language>
 		<lastBuildDate>Mon, 20 May 2019 17:15:33 -0400</lastBuildDate>
-		<atom:link href="http://example.org/categories/general/index.xml" rel="self" type="application/rss+xml" />
+		<atom:link href="http://ngoldbaum.github.io/categories/general/index.xml" rel="self" type="application/rss+xml" />
 		<item>
 			<title>My First Post</title>
-			<link>http://example.org/posts/my-first-post/</link>
+			<link>http://ngoldbaum.github.io/posts/my-first-post/</link>
 			<pubDate>Mon, 20 May 2019 17:15:33 -0400</pubDate>
-			<guid isPermaLink="true">http://example.org/posts/my-first-post/</guid>
+			<guid isPermaLink="true">http://ngoldbaum.github.io/posts/my-first-post/</guid>
 			<description>&lt;p&gt;This is a basic blog post.&lt;/p&gt;
 </description>
 		</item>
