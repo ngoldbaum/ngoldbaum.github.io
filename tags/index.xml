@@ -1,19 +1,18 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 	<channel>
-		<title>My New Hugo Site</title>
-		<link>http://ngoldbaum.github.io/tags/</link>
-		<description>Recent content on My New Hugo Site</description>
+		<title>Tags on My New Hugo Site</title>
+		<link>https://ngoldbaum.github.io/tags/</link>
+		<description>Recent content in Tags on My New Hugo Site</description>
 		<generator>Hugo 0.55.6 -- gohugo.io</generator>
 		<language>en-us</language>
 		<lastBuildDate>Mon, 20 May 2019 17:15:33 -0400</lastBuildDate>
-		<atom:link href="http://ngoldbaum.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+		<atom:link href="https://ngoldbaum.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
 		<item>
-			<title>My First Post</title>
-			<link>http://ngoldbaum.github.io/posts/my-first-post/</link>
+			<title></title>
+			<link>https://ngoldbaum.github.io/tags/</link>
 			<pubDate>Mon, 20 May 2019 17:15:33 -0400</pubDate>
-			<guid isPermaLink="true">http://ngoldbaum.github.io/posts/my-first-post/</guid>
-			<description>&lt;p&gt;This is a basic blog post.&lt;/p&gt;
-</description>
+			<guid isPermaLink="true">https://ngoldbaum.github.io/tags/</guid>
+			<description></description>
 		</item>
 	</channel>
 </rss>
