@@ -1,17 +1,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 	<channel>
-		<title>Categories on My New Hugo Site</title>
+		<title>Categories on Nathan&#39;s RC blog</title>
 		<link>https://ngoldbaum.github.io/categories/</link>
-		<description>Recent content in Categories on My New Hugo Site</description>
+		<description>Recent content in Categories on Nathan&#39;s RC blog</description>
 		<generator>Hugo 0.55.6 -- gohugo.io</generator>
 		<language>en-us</language>
 		<lastBuildDate>Mon, 20 May 2019 17:15:33 -0400</lastBuildDate>
 		<atom:link href="https://ngoldbaum.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
 		<item>
-			<title>General</title>
-			<link>https://ngoldbaum.github.io/categories/general/</link>
+			<title>Personal</title>
+			<link>https://ngoldbaum.github.io/categories/personal/</link>
 			<pubDate>Mon, 20 May 2019 17:15:33 -0400</pubDate>
-			<guid isPermaLink="true">https://ngoldbaum.github.io/categories/general/</guid>
+			<guid isPermaLink="true">https://ngoldbaum.github.io/categories/personal/</guid>
 			<description></description>
 		</item>
 	</channel>

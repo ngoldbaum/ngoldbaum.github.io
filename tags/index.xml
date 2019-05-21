@@ -1,17 +1,24 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 	<channel>
-		<title>Tags on My New Hugo Site</title>
+		<title>Tags on Nathan&#39;s RC blog</title>
 		<link>https://ngoldbaum.github.io/tags/</link>
-		<description>Recent content in Tags on My New Hugo Site</description>
+		<description>Recent content in Tags on Nathan&#39;s RC blog</description>
 		<generator>Hugo 0.55.6 -- gohugo.io</generator>
 		<language>en-us</language>
 		<lastBuildDate>Mon, 20 May 2019 17:15:33 -0400</lastBuildDate>
 		<atom:link href="https://ngoldbaum.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
 		<item>
-			<title></title>
-			<link>https://ngoldbaum.github.io/tags/</link>
+			<title>Learning</title>
+			<link>https://ngoldbaum.github.io/tags/learning/</link>
 			<pubDate>Mon, 20 May 2019 17:15:33 -0400</pubDate>
-			<guid isPermaLink="true">https://ngoldbaum.github.io/tags/</guid>
+			<guid isPermaLink="true">https://ngoldbaum.github.io/tags/learning/</guid>
+			<description></description>
+		</item>
+		<item>
+			<title>Recurse Center</title>
+			<link>https://ngoldbaum.github.io/tags/recurse-center/</link>
+			<pubDate>Mon, 20 May 2019 17:15:33 -0400</pubDate>
+			<guid isPermaLink="true">https://ngoldbaum.github.io/tags/recurse-center/</guid>
 			<description></description>
 		</item>
 	</channel>

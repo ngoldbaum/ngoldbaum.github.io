@@ -1,12 +1,12 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 	<channel>
-		<title>Posts on Nathan&#39;s RC blog</title>
-		<link>https://ngoldbaum.github.io/posts/</link>
-		<description>Recent content in Posts on Nathan&#39;s RC blog</description>
+		<title>Recurse Center on Nathan&#39;s RC blog</title>
+		<link>https://ngoldbaum.github.io/tags/recurse-center/</link>
+		<description>Recent content in Recurse Center on Nathan&#39;s RC blog</description>
 		<generator>Hugo 0.55.6 -- gohugo.io</generator>
 		<language>en-us</language>
 		<lastBuildDate>Mon, 20 May 2019 17:15:33 -0400</lastBuildDate>
-		<atom:link href="https://ngoldbaum.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+		<atom:link href="https://ngoldbaum.github.io/tags/recurse-center/index.xml" rel="self" type="application/rss+xml" />
 		<item>
 			<title>What this blog is for</title>
 			<link>https://ngoldbaum.github.io/posts/my-first-post/</link>
