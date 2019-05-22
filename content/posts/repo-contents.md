@@ -1,7 +1,7 @@
 ---
 title: "What's in a repository?"
 slug: repo-contents
-description: null
+summary: An exploration of the contents of the .hg directory in a mercurial repository.
 date: 2019-05-21T16:08:55-04:00
 type: posts
 draft: false
@@ -14,15 +14,16 @@ tags:
 When you look inside of a code repository you will likely first see just the
 contents of a codebase at a particular revision. However, the repository also
 contains a compressed version of the contents of every file at every version of
-the codebase. For a mercurial repository, these compressed data are contained in
+the codebase. For a Mercurial repository, these compressed data are contained in
 a hidden `.hg/` directory. In this blog post I'm going to try to figure out what
 data are contained in this directory and how it's structured.
 
-To follow along you will need to have mercurial installed. I'm going to use the
+To follow along you will need to have Mercurial installed. I'm going to use the
 latest version, Mercurial 5.0, which you can install in a number of ways,
 perhaps easiest using the `pip` associated with a Python 2.7
 installation. Mercurial 5.0 has beta support for Python 3.5 or newer, so you can
-use that as well if you do not have a Python 2.7 installation set up:
+use that as well if you do not have a Python 2.7 installation set up. To
+install, do the following:
 
 ```
 $ pip install mercurial --user
@@ -32,8 +33,8 @@ If you use `pip install --user` like I have here you will also need to ensure
 that `$HOME/.local/bin` is in your PATH environment variable.
 
 Let's take a look at the contents of the `.hg` directory for a real-world
-repository. For this purpose let's use the repository for mercurial itself -
-mercurial development is tracked using mercurial, naturally:
+repository. For this purpose let's use the repository for Mercurial itself -
+Mercurial development is tracked using Mercurial, naturally:
 
 ```
 $ hg clone https://mercurial-scm.org/repo/hg
@@ -54,13 +55,13 @@ Depending on how fast your internet connection is, this operation might take a
 while to finish. Mercurial is telling us a lot of information here in its debug
 output that might be helpful for understanding Mercurial's internals. First, it
 tries to figure out if we've given it a URL or some other URI it can resolve. We
-gave it an HTTPS URL so it just uses that to communicate with the mercurial
-instance running on mercurial-scm.org. Second, it prints "Requesting all
+gave it an HTTPS URL so it just uses that to communicate with the Mercurial
+instance running on Mercurial-scm.org. Second, it prints "Requesting all
 changes" when it begins to pull the changes from the remote repository. This
 happens in three steps, first obtaining the *changesets*, then the *manifests*,
 and finally the *file changes*. Each of these correspond to different kinds of
 *revlog* files on-disk that we will be looking at shortly. Briefly, the *revlog*
-is the file format that mercurial uses to store versioned data, let it be
+is the file format that Mercurial uses to store versioned data, let it be
 metadata, the manifest of files in a repository at any given time, and the
 contents of each file at each revision in history.
 
@@ -82,7 +83,8 @@ repository. Finally, it creates the working directory, which contains almost
 have ever been defined in the repository, some files that were present in the
 past have since been removed.
 
-OK, now that we've cloned the repository, let's take a look at what's inside:
+OK, now that we've cloned the repository, let's take a look at what's inside the
+`.hg` directory:
 
 ```
 $ cd hg/.hg
@@ -156,23 +158,23 @@ drwxrwxr-x 2 goldbaum goldbaum 4.0K May 22 09:29 wcache
 ```
 
 Still a decent number of files but definitely less complex. There is a very
-[helpful page](https://www.mercurial-scm.org/wiki/FileFormats) on the [mercurial
-wiki](https://www.mercurial-scm.org/wiki/) that describes mercurial's custom
+[helpful page](https://www.mercurial-scm.org/wiki/FileFormats) on the [Mercurial
+wiki](https://www.mercurial-scm.org/wiki/) that describes Mercurial's custom
 file formats, so we can look there to decide which of these files is important.
 
-The first, `00changelog.i` is there to inform older versions of mercurial that
+The first, `00changelog.i` is there to inform older versions of Mercurial that
 this repository was created with a newer version and is incompatible with the
 old version. Mercurial development proceeds with [strict backward
 compatibility](https://www.mercurial-scm.org/wiki/CompatibilityRules)
-guarantees so repositories created by older versions of mercurial should
+guarantees so repositories created by older versions of Mercurial should
 continue to work with newer versions forever, however there's guarantee that an
-old mercurial client should be able to read a repository created by a new
-one. Since mercurial is a distributed system it is important for it to be able
+old Mercurial client should be able to read a repository created by a new
+one. Since Mercurial is a distributed system it is important for it to be able
 to talk to various versions of itself over the network or when operating on
 repositories on disk.
 
 The `cache` and `wcache` directories contain caches of various kinds used by
-mercurial and some extensions:
+Mercurial and some extensions:
 
 ```
 $ ls -lh .hg/cache
@@ -184,12 +186,12 @@ total 1.4M
 -rw-rw-r-- 1 goldbaum goldbaum 331K May 21 16:30 rbc-revs-v1
 ```
 
-These arent documented on the wiki (last updated in 2013) and appear to contain
+These aren't documented on the wiki (last updated in 2013) and appear to contain
 opaque binary data. I'm going to ignore these for now.
 
 The `dirstate` file contains information about the state of the working
 directory (e.g. everything in the repository *except* for the `.hg`
-directory). Quote the mercurial wiki:
+directory). Quote the Mercurial wiki:
 
 > This file contains information on the current state of the working directory
 > in a binary format. It begins with two 20-byte hashes, for first and second
@@ -250,7 +252,7 @@ $ stat -c "%a %n" a_file
 ```
 
 How this is calculated based on the contents of the `dirstate` file is a little
-confusing to me, I'd like to come back to this later. Internally mercurial is
+confusing to me, I'd like to come back to this later. Internally Mercurial is
 doing something like this python code:
 
 ```
@@ -264,7 +266,7 @@ The first operation makes some sense, masking with `0o777` ignores the first two
 and half bytes. The 8 may indicate that the next 12 bits correspond to three
 octal characters, and then the next three characters are the file mask. I'm not
 sure why we additionally need to mask with `~os.umask(0)`. Digging into the
-history of mercurial, it looks like this extra masking step [was
+history of Mercurial, it looks like this extra masking step [was
 added](https://www.mercurial-scm.org/repo/hg/rev/9ab2b3b730ee) to fix issues on
 windows and wasn't in the original implementation, so let's just ignore it for
 now.
@@ -287,20 +289,20 @@ let's quickly go over those.
 
   This file contains the content of the last commit message, presumably for
   caching purposes or so people can set up prompts that don't need to actually
-  start up the mercurial executable.
+  start up the Mercurial executable.
   
 * `requires`
 
-  A record of repository requirements. This tells mercurial clients what
+  A record of repository requirements. This tells Mercurial clients what
   features must be supported in order to work with the repository. Old clients
   that do not have support for newer features will refuse to load a repository
-  that lists requirements from newer mercurial versions.
+  that lists requirements from newer Mercurial versions.
   
 * `undo.*` files
 
   Files used by the deprecated "hg rollback" command to undo the last
   transaction. I will ignore these since they are only useful for a deprecated
-  feature in mercurial.
+  feature in Mercurial.
   
 Finally there is one last directory, the `store`:
 
@@ -312,6 +314,6 @@ $ ls .hg/store
 
 The primary purpose of this directory is to store the bulk of the repository
 data, in the form of [revlog](https://www.mercurial-scm.org/wiki/Revlog)
-files. This is a special data structure that was invented by mercurial's
+files. This is a special data structure that was invented by Mercurial's
 original developer to store versioned data in a compressed manner. We will come
 back to revlogs and the contents of this directory in the next blog post.
