@@ -4,18 +4,47 @@
   
   <url>
     <loc>https://ngoldbaum.github.io/categories/</loc>
-    <lastmod>2019-05-20T17:15:33-04:00</lastmod>
+    <lastmod>2019-05-21T16:08:55-04:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://ngoldbaum.github.io/tags/learning/</loc>
-    <lastmod>2019-05-20T17:15:33-04:00</lastmod>
+    <loc>https://ngoldbaum.github.io/tags/mercurial/</loc>
+    <lastmod>2019-05-21T16:08:55-04:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://ngoldbaum.github.io/</loc>
+    <lastmod>2019-05-21T16:08:55-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://ngoldbaum.github.io/posts/</loc>
+    <lastmod>2019-05-21T16:08:55-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://ngoldbaum.github.io/tags/</loc>
+    <lastmod>2019-05-21T16:08:55-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://ngoldbaum.github.io/categories/technical/</loc>
+    <lastmod>2019-05-21T16:08:55-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://ngoldbaum.github.io/posts/repo-contents/</loc>
+    <lastmod>2019-05-21T16:08:55-04:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://ngoldbaum.github.io/tags/learning/</loc>
     <lastmod>2019-05-20T17:15:33-04:00</lastmod>
     <priority>0</priority>
   </url>
@@ -27,19 +56,7 @@
   </url>
   
   <url>
-    <loc>https://ngoldbaum.github.io/posts/</loc>
-    <lastmod>2019-05-20T17:15:33-04:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
     <loc>https://ngoldbaum.github.io/tags/recurse-center/</loc>
-    <lastmod>2019-05-20T17:15:33-04:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://ngoldbaum.github.io/tags/</loc>
     <lastmod>2019-05-20T17:15:33-04:00</lastmod>
     <priority>0</priority>
   </url>
