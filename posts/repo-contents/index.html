@@ -5,7 +5,7 @@
   <title>What&#39;s in a repository? | Nathan&#39;s RC blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="description" content="When you look inside of a code repository you will likely first see just the contents of a codebase at a particular revision. However, the repository also contains a compressed version of the contents of every file at every version of the codebase. For a mercurial repository, these compressed data are contained in a hidden .hg/ directory. In this blog post I&rsquo;m going to try to figure out what data are contained in this directory and how it&rsquo;s structured." />
+  <meta name="description" content="An exploration of the contents of the .hg directory in a mercurial repository." />
   <meta name="author" content="" />
   <meta name="generator" content="Hugo 0.55.6" />
   <link href="https://ngoldbaum.github.io/index.xml" rel="alternate" type="application/rss+xml" title="Nathan&#39;s RC blog Feed" />
@@ -45,15 +45,16 @@
     <p>When you look inside of a code repository you will likely first see just the
 contents of a codebase at a particular revision. However, the repository also
 contains a compressed version of the contents of every file at every version of
-the codebase. For a mercurial repository, these compressed data are contained in
+the codebase. For a Mercurial repository, these compressed data are contained in
 a hidden <code>.hg/</code> directory. In this blog post I&rsquo;m going to try to figure out what
 data are contained in this directory and how it&rsquo;s structured.</p>
 
-<p>To follow along you will need to have mercurial installed. I&rsquo;m going to use the
+<p>To follow along you will need to have Mercurial installed. I&rsquo;m going to use the
 latest version, Mercurial 5.0, which you can install in a number of ways,
 perhaps easiest using the <code>pip</code> associated with a Python 2.7
 installation. Mercurial 5.0 has beta support for Python 3.5 or newer, so you can
-use that as well if you do not have a Python 2.7 installation set up:</p>
+use that as well if you do not have a Python 2.7 installation set up. To
+install, do the following:</p>
 
 <pre><code>$ pip install mercurial --user
 </code></pre>
@@ -62,8 +63,8 @@ use that as well if you do not have a Python 2.7 installation set up:</p>
 that <code>$HOME/.local/bin</code> is in your PATH environment variable.</p>
 
 <p>Let&rsquo;s take a look at the contents of the <code>.hg</code> directory for a real-world
-repository. For this purpose let&rsquo;s use the repository for mercurial itself -
-mercurial development is tracked using mercurial, naturally:</p>
+repository. For this purpose let&rsquo;s use the repository for Mercurial itself -
+Mercurial development is tracked using Mercurial, naturally:</p>
 
 <pre><code>$ hg clone https://mercurial-scm.org/repo/hg
 real URL is https://www.mercurial-scm.org/repo/hg
@@ -83,13 +84,13 @@ updating to bookmark @
 while to finish. Mercurial is telling us a lot of information here in its debug
 output that might be helpful for understanding Mercurial&rsquo;s internals. First, it
 tries to figure out if we&rsquo;ve given it a URL or some other URI it can resolve. We
-gave it an HTTPS URL so it just uses that to communicate with the mercurial
-instance running on mercurial-scm.org. Second, it prints &ldquo;Requesting all
+gave it an HTTPS URL so it just uses that to communicate with the Mercurial
+instance running on Mercurial-scm.org. Second, it prints &ldquo;Requesting all
 changes&rdquo; when it begins to pull the changes from the remote repository. This
 happens in three steps, first obtaining the <em>changesets</em>, then the <em>manifests</em>,
 and finally the <em>file changes</em>. Each of these correspond to different kinds of
 <em>revlog</em> files on-disk that we will be looking at shortly. Briefly, the <em>revlog</em>
-is the file format that mercurial uses to store versioned data, let it be
+is the file format that Mercurial uses to store versioned data, let it be
 metadata, the manifest of files in a repository at any given time, and the
 contents of each file at each revision in history.</p>
 
@@ -111,7 +112,8 @@ repository. Finally, it creates the working directory, which contains almost
 have ever been defined in the repository, some files that were present in the
 past have since been removed.</p>
 
-<p>OK, now that we&rsquo;ve cloned the repository, let&rsquo;s take a look at what&rsquo;s inside:</p>
+<p>OK, now that we&rsquo;ve cloned the repository, let&rsquo;s take a look at what&rsquo;s inside the
+<code>.hg</code> directory:</p>
 
 <pre><code>$ cd hg/.hg
 $ ls -lh
@@ -181,23 +183,23 @@ drwxrwxr-x 2 goldbaum goldbaum 4.0K May 22 09:29 wcache
 </code></pre>
 
 <p>Still a decent number of files but definitely less complex. There is a very
-<a href="https://www.mercurial-scm.org/wiki/FileFormats">helpful page</a> on the <a href="https://www.mercurial-scm.org/wiki/">mercurial
-wiki</a> that describes mercurial&rsquo;s custom
+<a href="https://www.mercurial-scm.org/wiki/FileFormats">helpful page</a> on the <a href="https://www.mercurial-scm.org/wiki/">Mercurial
+wiki</a> that describes Mercurial&rsquo;s custom
 file formats, so we can look there to decide which of these files is important.</p>
 
-<p>The first, <code>00changelog.i</code> is there to inform older versions of mercurial that
+<p>The first, <code>00changelog.i</code> is there to inform older versions of Mercurial that
 this repository was created with a newer version and is incompatible with the
 old version. Mercurial development proceeds with <a href="https://www.mercurial-scm.org/wiki/CompatibilityRules">strict backward
 compatibility</a>
-guarantees so repositories created by older versions of mercurial should
+guarantees so repositories created by older versions of Mercurial should
 continue to work with newer versions forever, however there&rsquo;s guarantee that an
-old mercurial client should be able to read a repository created by a new
-one. Since mercurial is a distributed system it is important for it to be able
+old Mercurial client should be able to read a repository created by a new
+one. Since Mercurial is a distributed system it is important for it to be able
 to talk to various versions of itself over the network or when operating on
 repositories on disk.</p>
 
 <p>The <code>cache</code> and <code>wcache</code> directories contain caches of various kinds used by
-mercurial and some extensions:</p>
+Mercurial and some extensions:</p>
 
 <pre><code>$ ls -lh .hg/cache
 total 1.4M
@@ -208,12 +210,12 @@ total 1.4M
 -rw-rw-r-- 1 goldbaum goldbaum 331K May 21 16:30 rbc-revs-v1
 </code></pre>
 
-<p>These arent documented on the wiki (last updated in 2013) and appear to contain
+<p>These aren&rsquo;t documented on the wiki (last updated in 2013) and appear to contain
 opaque binary data. I&rsquo;m going to ignore these for now.</p>
 
 <p>The <code>dirstate</code> file contains information about the state of the working
 directory (e.g. everything in the repository <em>except</em> for the <code>.hg</code>
-directory). Quote the mercurial wiki:</p>
+directory). Quote the Mercurial wiki:</p>
 
 <blockquote>
 <p>This file contains information on the current state of the working directory
@@ -274,7 +276,7 @@ bytes. In this case it corresponds to the octal permission code <code>664</code>
 </code></pre>
 
 <p>How this is calculated based on the contents of the <code>dirstate</code> file is a little
-confusing to me, I&rsquo;d like to come back to this later. Internally mercurial is
+confusing to me, I&rsquo;d like to come back to this later. Internally Mercurial is
 doing something like this python code:</p>
 
 <pre><code>&gt;&gt;&gt; import os
@@ -287,7 +289,7 @@ doing something like this python code:</p>
 and half bytes. The 8 may indicate that the next 12 bits correspond to three
 octal characters, and then the next three characters are the file mask. I&rsquo;m not
 sure why we additionally need to mask with <code>~os.umask(0)</code>. Digging into the
-history of mercurial, it looks like this extra masking step <a href="https://www.mercurial-scm.org/repo/hg/rev/9ab2b3b730ee">was
+history of Mercurial, it looks like this extra masking step <a href="https://www.mercurial-scm.org/repo/hg/rev/9ab2b3b730ee">was
 added</a> to fix issues on
 windows and wasn&rsquo;t in the original implementation, so let&rsquo;s just ignore it for
 now.</p>
@@ -312,16 +314,16 @@ let&rsquo;s quickly go over those.</p>
 
 <p>This file contains the content of the last commit message, presumably for
   caching purposes or so people can set up prompts that don&rsquo;t need to actually
-  start up the mercurial executable.</p>
+  start up the Mercurial executable.</p>
 
 <ul>
 <li><code>requires</code></li>
 </ul>
 
-<p>A record of repository requirements. This tells mercurial clients what
+<p>A record of repository requirements. This tells Mercurial clients what
   features must be supported in order to work with the repository. Old clients
   that do not have support for newer features will refuse to load a repository
-  that lists requirements from newer mercurial versions.</p>
+  that lists requirements from newer Mercurial versions.</p>
 
 <ul>
 <li><code>undo.*</code> files</li>
@@ -329,7 +331,7 @@ let&rsquo;s quickly go over those.</p>
 
 <p>Files used by the deprecated &ldquo;hg rollback&rdquo; command to undo the last
   transaction. I will ignore these since they are only useful for a deprecated
-  feature in mercurial.</p>
+  feature in Mercurial.</p>
 
 <p>Finally there is one last directory, the <code>store</code>:</p>
 
@@ -340,7 +342,7 @@ let&rsquo;s quickly go over those.</p>
 
 <p>The primary purpose of this directory is to store the bulk of the repository
 data, in the form of <a href="https://www.mercurial-scm.org/wiki/Revlog">revlog</a>
-files. This is a special data structure that was invented by mercurial&rsquo;s
+files. This is a special data structure that was invented by Mercurial&rsquo;s
 original developer to store versioned data in a compressed manner. We will come
 back to revlogs and the contents of this directory in the next blog post.</p>
 
