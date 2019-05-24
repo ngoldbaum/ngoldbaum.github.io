@@ -38,6 +38,13 @@
   <ul>
     <li>
       <div class="post-title">
+        <a href="https://ngoldbaum.github.io/posts/dynamic-programming/">Dynamic Programming</a>
+      </div>
+      
+
+    </li>
+    <li>
+      <div class="post-title">
         <a href="https://ngoldbaum.github.io/posts/repo-contents/">What&#39;s in a repository?</a>
       </div>
       
@@ -68,6 +75,35 @@
     </ul>
   </div>
 </div>
+<script type="text/javascript" async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+  });
+  MathJax.Hub.Queue(function() {
+    
+    
+    
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i = 0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+
+  MathJax.Hub.Config({
+  
+  TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+</script>
+
 <script>
   function setElementsClass(selector, value) {
     Array.prototype.forEach.call(

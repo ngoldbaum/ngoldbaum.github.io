@@ -5,8 +5,36 @@
 		<description>Recent content in Tags on Nathan&#39;s RC blog</description>
 		<generator>Hugo 0.55.6 -- gohugo.io</generator>
 		<language>en-us</language>
-		<lastBuildDate>Tue, 21 May 2019 16:08:55 -0400</lastBuildDate>
+		<lastBuildDate>Fri, 24 May 2019 15:24:59 -0400</lastBuildDate>
 		<atom:link href="https://ngoldbaum.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+		<item>
+			<title>Algorithms</title>
+			<link>https://ngoldbaum.github.io/tags/algorithms/</link>
+			<pubDate>Fri, 24 May 2019 15:24:59 -0400</pubDate>
+			<guid isPermaLink="true">https://ngoldbaum.github.io/tags/algorithms/</guid>
+			<description></description>
+		</item>
+		<item>
+			<title>Interview Prep</title>
+			<link>https://ngoldbaum.github.io/tags/interview-prep/</link>
+			<pubDate>Fri, 24 May 2019 15:24:59 -0400</pubDate>
+			<guid isPermaLink="true">https://ngoldbaum.github.io/tags/interview-prep/</guid>
+			<description></description>
+		</item>
+		<item>
+			<title>Programming</title>
+			<link>https://ngoldbaum.github.io/tags/programming/</link>
+			<pubDate>Fri, 24 May 2019 15:24:59 -0400</pubDate>
+			<guid isPermaLink="true">https://ngoldbaum.github.io/tags/programming/</guid>
+			<description></description>
+		</item>
+		<item>
+			<title>Python</title>
+			<link>https://ngoldbaum.github.io/tags/python/</link>
+			<pubDate>Fri, 24 May 2019 15:24:59 -0400</pubDate>
+			<guid isPermaLink="true">https://ngoldbaum.github.io/tags/python/</guid>
+			<description></description>
+		</item>
 		<item>
 			<title>Mercurial</title>
 			<link>https://ngoldbaum.github.io/tags/mercurial/</link>
