@@ -232,7 +232,15 @@ cases as we go:&lt;/p&gt;
             &lt;span style=&#34;color:#66d9ef&#34;&gt;else&lt;/span&gt;:
                 TABLE[i, c] &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; TABLE[i &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt; c[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;], c] &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; TABLE[i, c[&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;:]]
 
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; TABLE[amount, denominations]&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;</description>
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; TABLE[amount, denominations]&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;h2 id=&#34;futher-reading&#34;&gt;Futher Reading&lt;/h2&gt;
+
+&lt;p&gt;Another blog post diving into some more in-depth theory:
+&lt;a href=&#34;https://blog.racket-lang.org/2012/08/dynamic-programming-versus-memoization.html&#34;&gt;https://blog.racket-lang.org/2012/08/dynamic-programming-versus-memoization.html&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;A set of dynamic programming practice problems:
+&lt;a href=&#34;https://atcoder.jp/contests/dp/tasks&#34;&gt;https://atcoder.jp/contests/dp/tasks&lt;/a&gt;&lt;/p&gt;
+</description>
 		</item>
 		<item>
 			<title>What&#39;s in a repository?</title>
