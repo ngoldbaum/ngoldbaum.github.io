@@ -253,3 +253,11 @@ def make_change_dynamic(amount, denominations):
 
     return TABLE[amount, denominations]
 ```
+
+## Futher Reading
+
+Another blog post diving into some more in-depth theory:
+https://blog.racket-lang.org/2012/08/dynamic-programming-versus-memoization.html
+
+A set of dynamic programming practice problems:
+https://atcoder.jp/contests/dp/tasks
