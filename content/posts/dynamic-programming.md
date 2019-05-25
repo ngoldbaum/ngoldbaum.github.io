@@ -253,7 +253,7 @@ def make_change_dynamic(amount, denominations):
     return TABLE[amount, denominations]
 ```
 
-If I had to guess, there's probably a fancier version that can compute the
+I suspect that there's probably a fancier version that can compute the
 result with constant memory like the Fibonacci case we discussed above.
 
 ## Futher Reading
