@@ -199,8 +199,8 @@ def make_change(amount, denominations):
     if amount < 0:
         return 0
     num_with_amount = make_change(amount - denominations[0], denominations)
-    num_without_amount = make_change(amount, denominations[1:])
-    return num_with_amount + num_without_amount
+    num_without_denom = make_change(amount, denominations[1:])
+    return num_with_amount + num_without_denom
 ```
 
 The terminating cases might look a little weird. The first, checking the number
@@ -252,6 +252,9 @@ def make_change_dynamic(amount, denominations):
 
     return TABLE[amount, denominations]
 ```
+
+If I had to guess, there's probably a fancier version that can compute the
+result with constant memory like the Fibonacci case we discussed above.
 
 ## Futher Reading
 
