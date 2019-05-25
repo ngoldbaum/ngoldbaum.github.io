@@ -184,8 +184,8 @@ dealing with a smaller problem, another recursive path.&lt;/p&gt;
     &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; amount &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;:
         &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
     num_with_amount &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; make_change(amount &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt; denominations[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;], denominations)
-    num_without_amount &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; make_change(amount, denominations[&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;:])
-    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; num_with_amount &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; num_without_amount&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+    num_without_denom &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; make_change(amount, denominations[&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;:])
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; num_with_amount &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; num_without_denom&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;The terminating cases might look a little weird. The first, checking the number
 of denominations to consider, handles the case where we&amp;rsquo;re asked to make change
 with no coins at all. There&amp;rsquo;s no way to make change in this case, so the number
@@ -232,6 +232,9 @@ cases as we go:&lt;/p&gt;
                 TABLE[i, c] &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; TABLE[i &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt; c[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;], c] &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; TABLE[i, c[&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;:]]
 
     &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; TABLE[amount, denominations]&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;If I had to guess, there&amp;rsquo;s probably a fancier version that can compute the
+result with constant memory like the Fibonacci case we discussed above.&lt;/p&gt;
+
 &lt;h2 id=&#34;futher-reading&#34;&gt;Futher Reading&lt;/h2&gt;
 
 &lt;p&gt;Another blog post diving into some more in-depth theory:
