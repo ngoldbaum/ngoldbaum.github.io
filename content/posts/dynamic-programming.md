@@ -17,10 +17,9 @@ Today I'm going to be pausing the Mercurial content in favor of material I
 learned today in the algoganza study group here at the Recurse Center. This
 study group is working together to learn content that commonly comes up in job
 interviews and to prepare for the dreaded whiteboard technical
-interview. Today's session focused on a new concept for me, Dynamic
-Programming. As I understand, dynamic programming is an approach once can use to
-solve problems that are conceptually amenable to a recursive approach, but where
-the naive recursive approach might be very slow.
+interview. Today's session focused on a new concept for me, dynamic programming,
+an approach once can use to solve problems that are conceptually amenable to a
+recursive approach, but where the naive recursive approach might be very slow.
 
 ## A Problem Amenable to Recursion
 
