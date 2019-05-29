@@ -179,7 +179,7 @@ using two structs, one for the header:
 
 ```rust
 struct RevlogHeader {
-    offset: u64, // really 6 bytes but easier to represent as a u32
+    offset: u64, // really 6 bytes but easier to represent as a u64
     bitflags: [u8; 2],
     compressedlength: u32,
     uncompressedlength: u32,
