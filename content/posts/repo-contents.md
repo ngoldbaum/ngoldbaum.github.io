@@ -316,4 +316,5 @@ The primary purpose of this directory is to store the bulk of the repository
 data, in the form of [revlog](https://www.mercurial-scm.org/wiki/Revlog)
 files. This is a special data structure that was invented by Mercurial's
 original developer to store versioned data in a compressed manner. We will come
-back to revlogs and the contents of this directory in the next blog post.
+back to revlogs and the contents of this directory in the [next blog
+post](https://ngoldbaum.github.io/posts/revlog/).
