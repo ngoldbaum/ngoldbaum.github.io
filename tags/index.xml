@@ -38,8 +38,15 @@
 		<item>
 			<title>Mercurial</title>
 			<link>https://ngoldbaum.github.io/tags/mercurial/</link>
-			<pubDate>Tue, 21 May 2019 16:08:55 -0400</pubDate>
+			<pubDate>Thu, 23 May 2019 09:31:46 -0400</pubDate>
 			<guid isPermaLink="true">https://ngoldbaum.github.io/tags/mercurial/</guid>
+			<description></description>
+		</item>
+		<item>
+			<title>Rust</title>
+			<link>https://ngoldbaum.github.io/tags/rust/</link>
+			<pubDate>Thu, 23 May 2019 09:31:46 -0400</pubDate>
+			<guid isPermaLink="true">https://ngoldbaum.github.io/tags/rust/</guid>
 			<description></description>
 		</item>
 		<item>
