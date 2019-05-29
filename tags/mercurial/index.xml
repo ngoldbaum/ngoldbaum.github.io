@@ -621,7 +621,8 @@ let&amp;rsquo;s quickly go over those.&lt;/p&gt;
 data, in the form of &lt;a href=&#34;https://www.mercurial-scm.org/wiki/Revlog&#34;&gt;revlog&lt;/a&gt;
 files. This is a special data structure that was invented by Mercurial&amp;rsquo;s
 original developer to store versioned data in a compressed manner. We will come
-back to revlogs and the contents of this directory in the next blog post.&lt;/p&gt;
+back to revlogs and the contents of this directory in the &lt;a href=&#34;https://ngoldbaum.github.io/posts/revlog/&#34;&gt;next blog
+post&lt;/a&gt;.&lt;/p&gt;
 </description>
 		</item>
 	</channel>
