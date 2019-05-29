@@ -43,7 +43,7 @@ revision or as a delta relative to the state of the file at a previous
 revision. Whether or not a revision contains a delta or the full content of a
 file depends on how much data would be required to reconstruct the file
 (e.g. the length of the already existing delta chain or the size of the change
-int the revision). By storing occasional snapshots, Mercurial can reconstruct
+in the revision). By storing occasional snapshots, Mercurial can reconstruct
 repository content at any revision without going through all of the history of
 the project and also without storing an unreasonable amount of data for each
 revision. The style of delta chains with occasional snapshots is inspired by
