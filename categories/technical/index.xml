@@ -245,7 +245,7 @@ result with constant memory like the Fibonacci case we discussed above.&lt;/p&gt
 </description>
 		</item>
 		<item>
-			<title>Revlogs</title>
+			<title>Storing versioned data with revlogs</title>
 			<link>https://ngoldbaum.github.io/posts/revlog/</link>
 			<pubDate>Thu, 23 May 2019 09:31:46 -0400</pubDate>
 			<guid isPermaLink="true">https://ngoldbaum.github.io/posts/revlog/</guid>
