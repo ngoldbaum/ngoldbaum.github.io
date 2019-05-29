@@ -1,5 +1,5 @@
 ---
-title: "Revlogs"
+title: "Storing versioned data with revlogs"
 slug: revlog
 summary: >
   Revlogs are Mercurial's primary data storage format. In this post we will
