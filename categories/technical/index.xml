@@ -415,7 +415,7 @@ hg.sr.ht&lt;/a&gt;,
 a free (for the time being) service for hosting Mercurial repositories. The data are stored
 using two structs, one for the header:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-rust&#34; data-lang=&#34;rust&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;RevlogHeader&lt;/span&gt; {
-    offset: &lt;span style=&#34;color:#66d9ef&#34;&gt;u64&lt;/span&gt;, &lt;span style=&#34;color:#75715e&#34;&gt;// really 6 bytes but easier to represent as a u32
+    offset: &lt;span style=&#34;color:#66d9ef&#34;&gt;u64&lt;/span&gt;, &lt;span style=&#34;color:#75715e&#34;&gt;// really 6 bytes but easier to represent as a u64
 &lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    bitflags: [&lt;span style=&#34;color:#66d9ef&#34;&gt;u8&lt;/span&gt;; &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;],
     compressedlength: &lt;span style=&#34;color:#66d9ef&#34;&gt;u32&lt;/span&gt;,
     uncompressedlength: &lt;span style=&#34;color:#66d9ef&#34;&gt;u32&lt;/span&gt;,

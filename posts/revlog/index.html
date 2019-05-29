@@ -208,7 +208,7 @@ hg.sr.ht</a>,
 a free (for the time being) service for hosting Mercurial repositories. The data are stored
 using two structs, one for the header:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">RevlogHeader</span> {
-    offset: <span style="color:#66d9ef">u64</span>, <span style="color:#75715e">// really 6 bytes but easier to represent as a u32
+    offset: <span style="color:#66d9ef">u64</span>, <span style="color:#75715e">// really 6 bytes but easier to represent as a u64
 </span><span style="color:#75715e"></span>    bitflags: [<span style="color:#66d9ef">u8</span>; <span style="color:#ae81ff">2</span>],
     compressedlength: <span style="color:#66d9ef">u32</span>,
     uncompressedlength: <span style="color:#66d9ef">u32</span>,
