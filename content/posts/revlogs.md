@@ -7,7 +7,6 @@ summary: >
   format.
 date: 2019-05-23T09:31:46-04:00
 type: posts
-draft: true
 categories:
 - Technical
 tags:
@@ -20,10 +19,10 @@ format](https://www.mercurial-scm.org/wiki/Revlog) for storing versioned data of
 all kinds on-disk. The design constraints that led to the choice of this data
 format are described [in a paper by Matt
 Mackall](https://www.mercurial-scm.org/wiki/Presentations?action=AttachFile&do=view&target=ols-mercurial-paper.pdf),
-the original author of Mercurial. There is also internal technical
-documentation for the revlog data format included [in Mercurial's online
+the original author of Mercurial. There is also internal technical documentation
+for the revlog data format included [in Mercurial's online
 help](https://www.mercurial-scm.org/repo/hg/file/default/mercurial/help/internals/revlogs.txt),
-accessible via `hg help internals.revlogs`
+accessible via `hg help internals.revlogs`.
 
 ## What is a revlog exactly?
 
@@ -32,17 +31,52 @@ storing discrete data entries that relate to other entries via a directed
 acyclic graph (a
 [DAG](https://en.wikipedia.org/wiki/Directed_acyclic_graph)). For Mercurial's
 usage, the DAG in question is the graph of changes to the repository. Each entry
-in a revlog consists of metadata and revision data for the entry. The metadata
-contains a hash of the content of the revision, the size of the content and
-metadata, and references to the *parent* entries for the revlog. Each entry in a
-revlog can only have two parents. Mercurial does
-*not* allow [octopus
+in a revlog consists of metadata and compressed revision data for the entry. The
+metadata contains a cryptographic hash of the content of the revision, the size
+of the content and metadata, and references to the *parent* entries for the
+revlog. Each entry in a revlog can only have two parents. This is one of the
+reasons that Mercurial does *not* allow [octopus
 merges](http://www.freblogg.com/2016/12/git-octopus-merge.html), where revisions
-can have an arbitrary number of parents.
+can have an arbitrary number of parents. The revision data are stored in a
+compressed format, either containing the full content of a file at a given
+revision or as a delta relative to the state of the file at a previous
+revision. Whether or not a revision contains a delta or the full content of a
+file depends on how much data would be required to reconstruct the file
+(e.g. the length of the already existing delta chain or the size of the change
+int the revision). By storing occasional snapshots, Mercurial can reconstruct
+repository content at any revision without going through all of the history of
+the project and also without storing an unreasonable amount of data for each
+revision. The style of delta chains with occasional snapshots is inspired by
+video compression technology, where information about each frame is stored as
+deltas to the previous frame, with occasional keyframes containing the entire
+content of a frame of video.
 
-Let's take a look at a revlog file from the test repository we created in the
-last blog post. For now we're going to be looking at the *changelog* file. This
-revlog contains information with metadata for each commit in the repository.
+## Kinds of revlogs
+
+Mercurial stores all versioned data using three different kinds of revlog files,
+*changelogs*, *manifestlogs*, and *filelogs*. Each of these have the same format, a
+header followed by zlib-compressed content, but differ in the meaning of the
+content. Changelogs store metadata about each commit, reading from this file is
+sufficient to get most information displayed by `hg log`. Manifestlogs store the
+manifest of the repository - a list of files contained in the repository at a
+revision. Filelogs contain the revision information for individual files tracked
+in a repository. Each of these revlogs are linked to each other. The changelog
+contains a reference to a manifestlog entry, that manifestlog entry will in turn
+contain references to filelog entries. By reading data from each of these revlog
+files in turn, one can get the state of the files tracked by the repository at
+each revision. This is how `hg update` works to update the state of the working
+directory to a different revision.
+
+## Content of a revlog file
+
+Let's take a look at a revlog file from the test repository we created in [a
+previous blog post](https://ngoldbaum.github.io/posts/repo-contents/). For now
+we're going to be looking at the *changelog* file,
+`.hg/store/00changelog.i`. This revlog file contains information about each
+commit in the repository. Note that most revlogs used by Mercurial store the
+content of individual files in the repository, but since revlogs are a generic
+store for versioned data they can store versioned metadata like commit
+descriptions and authors as well.
 
 ```
 $ cd test-repository/.hg/store
@@ -72,28 +106,231 @@ $ xxd 00changelog.i
 00000160: e17f 5fb0 0c27 1c                        .._..'.
 ```
 
-Hmm, no luck about any of the data in here being human-readable - it appears to
-be more or less random binary data that we're going to need to do a bit more
-work to decode.
+Hmm, no luck about any of the data in this file being human-readable - it
+appears to be more or less random binary data that we're going to need to do a
+bit more work to decode. We should perhaps not be surprised about this, since
+revlogs store revision data in a compressed format - we'd need to be able to see
+the uncompressed revision data to get human-readable text back.
 
 According to the Mercurial documentation (in particular `hg help
 internals.revlogs`, see
 [here](https://www.mercurial-scm.org/repo/hg/help/internals.revlogs)), the first
 four bytes of the revlog encodes the version of the revlog data format used by
-the file as well as various feature flags. In this case the bytes are `0001`,
-which corresponds to a file that uses v1 of the revlog format and sets no
-special feature flags. This version of the revlog format is called RevlogNG - NG
-is short for next generation, which made a lot of sense when it replaced
-Mercurial's original revlog format in 2006.
+the file as well as various feature flags. In this case the bytes are
+`00010001`, which corresponds to a file that uses v1 of the revlog format and
+sets a feature flag that says revision data are stored *inline* in this
+file. This `v1` version of the revlog format is called RevlogNG - NG is short for
+next generation, which made a lot of sense when it replaced Mercurial's original
+revlog format in 2006. These days practically all repositories use one variant
+or another of the `v1` RevlogNG format. Data for revlog entries can either be
+stored interleaved with metadata entries or in a separate data file. Interleaved
+data are used for relatively small revlogs while separate data files are stored
+for large revlogs. This ensures revlog metadata can always be parsed without
+also needing to scan through large amounts of revision data.
 
 Following the header is the first entry. Each entry consists of metadata and
 revision data:
 
 * The number of bytes from the beginning of the file (6 bytes)
 * Bit flags for special behavior. For now we will ignore these. (2 bytes)
-* 
+* The length of the compressed revision data or delta stored in the entry. (4
+  bytes)
+* The length of the full revision data in uncompressed format, not the size
+  of an uncompressed delta if the entry stores a delta. (4 bytes)
+* Base revision to use when restoring the full text from a delta. If the base
+  revision is the current revision, the revision stores the full text. (4
+  bytes).
+* A *linkrev*, the revision number of a revision that this entry is linked to. This
+  allows a revision in one revlog to refer to a revision in a different
+  revlog. For example, the revlog entry for a file points to the revlog entry in
+  the `00changelog.i` changeset index file for the changeset that produced the
+  revlog entry. (4 bytes)
+* Signed integer revision of the first parent (`p1`), -1 indicates no parent. (4
+  bytes)
+* Signed integer revision of the second parent (`p2`), -1 indicates no
+  parent. (4 bytes)
+* Hash of the revision's content. (32 bytes).
 
-Since the offset to revision 0 will always be zero, it is elided. The 4-byte
-header takes the place of the offset for the first revision.
+Currently Mercurial uses a SHA-1 hash. Since SHA-1 hashes are 20 bytes long, the
+remaining 12 bytes are set to zero. In the future repositories will use a
+different, more secure hash function that can use up to 32 bytes to store
+hashes. Since the offset to revision 0 will always be zero, it is elided. The
+4-byte header takes the place of the offset for the first revision. The linkrev
+and parent revisions are stored as integer revision numbers. The linkrev is the
+revision number in the linked revlog file while the parent revisions are the
+revision numbers in the current revlog.
+
+For inline revlogs, the raw revision data follows the index entry, with no
+header or padding in between. For non-inline revlogs, the data for the entry are
+written at the offset specified in the first six bytes of the index entry. For
+non-inline revlogs, the data are stored in a file with a `".d"` filename suffix
+while the revlog index entries are stored in a `".i"` file. The revision entires
+themselves consist of an optional one-byte header followed by the revision
+data. The byte is either `\0`, for entries that are header-only and contain no
+revision data, `u`, for uncompressed revision data, and `x`, for zlib compressed
+revision data.
+
+## Representing revlogs in rust
+
+I've written a basic parser for this data format in Rust and [put it up on
+hg.sr.ht](https://hg.sr.ht/~ngoldbaum/hg-rust/browse/466e0f40365e/revlogs/src/main.rs),
+a free (for the time being) service for hosting Mercurial repositories. The data are stored
+using two structs, one for the header:
+
+```rust
+struct RevlogHeader {
+    offset: u64, // really 6 bytes but easier to represent as a u32
+    bitflags: [u8; 2],
+    compressedlength: u32,
+    uncompressedlength: u32,
+    baserev: i32,
+    linkrev: i32,
+    p1rev: i32,
+    p2rev: i32,
+    hash: [u8; 32],
+}
+```
+
+And another for the content of the revlog entry itself, which includes a header
+as well as uncompressed content of the revlog:
+
+```rust
+struct RevlogEntry {
+    header: RevlogHeader,
+    content: RevlogContent,
+}
+```
+
+The content field is represented using an enum:
+
+```rust
+enum RevlogContent {
+    Generic(String),
+}
+```
+
+For now the enum only has a single variant, and is a trivial wrapper for a
+String. The next step is to add special handling for changelogs,
+manifestlogs, and filelogs, so this will eventually look like:
+
+```rust
+enum RevlogContent {
+    Changelog(ChangelogEntry),
+    Manigestlog(ManifestlogEntry),
+    Filelog(FilelogEntry),
+}
+```
+
+This will allow me to add special handling and pretty-printers or the different
+kinds of revlogs used by Mercurial.
+
+To actually read the changelog entries, we need to read the header, get the size
+of the content of the revlog entry from the header, read the content, and
+finally decompress the content. Since revlog headers are always 64 bytes, to get
+the header we read 64 bytes of the changelog file and parse those destructure
+the header content into the logical described above into the fields of the
+`RevlogHeader` struct:
+
+```rust
+use byteorder::{BigEndian, ReadBytesExt};
+use std::io;
+
+impl RevlogHeader {
+    fn new(buffer: &[u8; 64]) -> Result<RevlogHeader, io::Error> {
+        let mut cursor = Cursor::new(buffer as &[u8]);
+        Ok(RevlogHeader {
+            offset: cursor.read_u48::<BigEndian>()? as u64,
+            bitflags: cursor.read_u16::<BigEndian>()?.to_be_bytes(),
+            compressedlength: cursor.read_u32::<BigEndian>()?,
+            uncompressedlength: cursor.read_u32::<BigEndian>()?,
+            baserev: cursor.read_i32::<BigEndian>()?,
+            linkrev: cursor.read_i32::<BigEndian>()?,
+            p1rev: cursor.read_i32::<BigEndian>()?,
+            p2rev: cursor.read_i32::<BigEndian>()?,
+            hash: {
+                let mut res = [0u8; 32];
+                cursor.read_exact(&mut res)?;
+                res
+            },
+        })
+    }
+}
+```
+
+I made use of the [byteorder](https://docs.rs/byteorder/1.3.1/byteorder/), which
+provides a nice interface for converting bytes of a binary stream into
+big-endian or little-endian integers. We store the hash as a raw array of bytes,
+but we can display it in a nice way like so:
+
+```rust
+header.hash.iter().map(|b| format!("{:02x}",b)).collect().join("");
+```
+
+This will convert the bytes into hexadecimal digits, collect those digits into a
+vector of strings, and then joins the strings into a single hash digest. This
+code is in the `fmt::Display` implementation for `RevlogHeader`.
+
+Once we have the header, we read the content, and then decompress the content
+using `zlib`. In practice we make use of [the flate2
+crate](https://crates.io/crates/flate2), which provides an interface for
+decompressing `zlib` streams:
+
+```rust
+use flate2::read::ZlibDecoder;
+
+let mut gz = ZlibDecoder::new(&zlib_buffer[..]);
+let mut decompressed_data = String::new();
+let decompressed_data = gz.read_to_string(&mut decompressed_data)?;
+```
+
+With all of that, we're able to read the data in the changelog file for the test
+repository we are working with:
 
 
+```
+$ cargo run
+header:
+offset: 0
+bitflags: [0, 0]
+compressed length: 111
+uncompressed length: 119
+base revision: 0
+linked revision: 0
+p1: -1
+p2: -1
+hash: 6f3346b94a1fbee70a8103708fd6d485edc88602000000000000000000000000
+
+content: 8047a1de3d215413678766b615c006285e9b68df
+Nathan Goldbaum <nathan12343@gmail.com>
+1558531724 14400
+a_file
+
+adding a_file
+
+header:
+offset: 111
+bitflags: [0, 0]
+compressed length: 120
+uncompressed length: 132
+base revision: 1
+linked revision: 1
+p1: 0
+p2: -1
+hash: 0e80b49a8edc08c2d9ffcdcd7fd71b55de9a7f7f000000000000000000000000
+
+content: d68909f0c439445f34273877884dde9eb55b20e4
+Nathan Goldbaum <nathan12343@gmail.com>
+1558531758 14400
+a_file
+
+adding more text to a_file
+```
+
+Here we can see that changelog entries store a hash that encodes a reference to
+a manifestlog entry, the commit author and e-mail, a timestamp and timezone
+offset, a list of files that are touched by the changeset, and the commit
+description.
+
+Next up I will be exploring the content of manifestlog and filelog files, with
+the ultimate goal of being able to reconstruct snapshots of a repository at a
+given revision, implementing the functionality of `hg update`.
