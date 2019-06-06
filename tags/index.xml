@@ -5,8 +5,22 @@
 		<description>Recent content in Tags on Nathan&#39;s RC blog</description>
 		<generator>Hugo 0.55.6 -- gohugo.io</generator>
 		<language>en-us</language>
-		<lastBuildDate>Fri, 24 May 2019 15:24:59 -0400</lastBuildDate>
+		<lastBuildDate>Thu, 06 Jun 2019 10:23:45 -0400</lastBuildDate>
 		<atom:link href="https://ngoldbaum.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+		<item>
+			<title>Programming</title>
+			<link>https://ngoldbaum.github.io/tags/programming/</link>
+			<pubDate>Thu, 06 Jun 2019 10:23:45 -0400</pubDate>
+			<guid isPermaLink="true">https://ngoldbaum.github.io/tags/programming/</guid>
+			<description></description>
+		</item>
+		<item>
+			<title>Rust</title>
+			<link>https://ngoldbaum.github.io/tags/rust/</link>
+			<pubDate>Thu, 06 Jun 2019 10:23:45 -0400</pubDate>
+			<guid isPermaLink="true">https://ngoldbaum.github.io/tags/rust/</guid>
+			<description></description>
+		</item>
 		<item>
 			<title>Algorithms</title>
 			<link>https://ngoldbaum.github.io/tags/algorithms/</link>
@@ -22,13 +36,6 @@
 			<description></description>
 		</item>
 		<item>
-			<title>Programming</title>
-			<link>https://ngoldbaum.github.io/tags/programming/</link>
-			<pubDate>Fri, 24 May 2019 15:24:59 -0400</pubDate>
-			<guid isPermaLink="true">https://ngoldbaum.github.io/tags/programming/</guid>
-			<description></description>
-		</item>
-		<item>
 			<title>Python</title>
 			<link>https://ngoldbaum.github.io/tags/python/</link>
 			<pubDate>Fri, 24 May 2019 15:24:59 -0400</pubDate>
@@ -40,13 +47,6 @@
 			<link>https://ngoldbaum.github.io/tags/mercurial/</link>
 			<pubDate>Thu, 23 May 2019 09:31:46 -0400</pubDate>
 			<guid isPermaLink="true">https://ngoldbaum.github.io/tags/mercurial/</guid>
-			<description></description>
-		</item>
-		<item>
-			<title>Rust</title>
-			<link>https://ngoldbaum.github.io/tags/rust/</link>
-			<pubDate>Thu, 23 May 2019 09:31:46 -0400</pubDate>
-			<guid isPermaLink="true">https://ngoldbaum.github.io/tags/rust/</guid>
 			<description></description>
 		</item>
 		<item>
