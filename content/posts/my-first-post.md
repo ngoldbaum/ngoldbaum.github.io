@@ -1,7 +1,8 @@
 ---
 title: "What this blog is for"
 slug: my-first-post
-description: null
+summary: >
+  What this blog is for.
 date: 2019-05-20T17:15:33-04:00
 type: posts
 categories:

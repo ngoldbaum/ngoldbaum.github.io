@@ -1,6 +1,8 @@
 ---
 title: "Dynamic Programming"
 slug: dynamic-programming
+summary: >
+  An introduction to the concept of dynamic programming.
 description: null
 date: 2019-05-24T15:24:59-04:00
 type: posts
