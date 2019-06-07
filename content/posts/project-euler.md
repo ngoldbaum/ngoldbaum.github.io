@@ -336,7 +336,7 @@ return a `Sequence` to test.
 
 Finally, we check all the possible sequences:
 
-```
+```rust
 let mut largeprod = 0;
 
 for i in 0..nrows {
