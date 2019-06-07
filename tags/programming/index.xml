@@ -310,28 +310,26 @@ types are analogous:&lt;/p&gt;
 return a &lt;code&gt;Sequence&lt;/code&gt; to test.&lt;/p&gt;
 
 &lt;p&gt;Finally, we check all the possible sequences:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-rust&#34; data-lang=&#34;rust&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;let&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;mut&lt;/span&gt; largeprod &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;;
 
-&lt;pre&gt;&lt;code&gt;let mut largeprod = 0;
-
-for i in 0..nrows {
-    for j in 0..ncols {
-        // horizontal sequences
-        check(horizontal_sequence(i, j, nrows, &amp;amp;array), &amp;amp;mut largeprod);
-        check(vertical_sequence(i, j, nrows, &amp;amp;array), &amp;amp;mut largeprod);
+&lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; i &lt;span style=&#34;color:#66d9ef&#34;&gt;in&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;..nrows {
+    &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; j &lt;span style=&#34;color:#66d9ef&#34;&gt;in&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;..ncols {
+        &lt;span style=&#34;color:#75715e&#34;&gt;// horizontal sequences
+&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;        check(horizontal_sequence(i, j, nrows, &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;array), &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;mut&lt;/span&gt; largeprod);
+        check(vertical_sequence(i, j, nrows, &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;array), &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;mut&lt;/span&gt; largeprod);
         check(
-            rising_diagonal_sequence(i, j, nrows, &amp;amp;array),
-            &amp;amp;mut largeprod,
+            rising_diagonal_sequence(i, j, nrows, &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;array),
+            &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;mut&lt;/span&gt; largeprod,
         );
         check(
-            falling_diagonal_sequence(i, j, nrows, &amp;amp;array),
-            &amp;amp;mut largeprod,
+            falling_diagonal_sequence(i, j, nrows, &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;array),
+            &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;mut&lt;/span&gt; largeprod,
         );
     }
 }
 
-println!(&amp;quot;{}&amp;quot;, largeprod);
-&lt;/code&gt;&lt;/pre&gt;
-
+println&lt;span style=&#34;color:#f92672&#34;&gt;!&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;{}&amp;#34;&lt;/span&gt;, largeprod);
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;The slightly unsightly formatting here is generated for me automatically by
 &lt;code&gt;rustfmt&lt;/code&gt;. Sometimes I disagree with it but it&amp;rsquo;s better in my opinion not to
 fight and just live with the standard automatic code formatting for the sake of
