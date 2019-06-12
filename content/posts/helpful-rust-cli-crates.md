@@ -5,7 +5,6 @@ summary : >
   Exploration of rust crates that are useful for writing command-line applications.
 date: 2019-06-12T10:06:24-04:00
 type: posts
-draft: true
 categories:
 - Technical
 tags:
