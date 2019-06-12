@@ -425,7 +425,8 @@ processing pipeline on the range of numbers between one and 1000:&lt;/p&gt;
         .collect::&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;Vec&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;String&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&lt;/span&gt;();
     dbg&lt;span style=&#34;color:#f92672&#34;&gt;!&lt;/span&gt;(&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;numbers);
     &lt;span style=&#34;color:#66d9ef&#34;&gt;let&lt;/span&gt; nchars &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; numbers.iter().fold(&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;, &lt;span style=&#34;color:#f92672&#34;&gt;|&lt;/span&gt;acc, x&lt;span style=&#34;color:#f92672&#34;&gt;|&lt;/span&gt; acc &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; x.len());
-println&lt;span style=&#34;color:#f92672&#34;&gt;!&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;{}&amp;#34;&lt;/span&gt;, nchars);
+    println&lt;span style=&#34;color:#f92672&#34;&gt;!&lt;/span&gt;(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;{}&amp;#34;&lt;/span&gt;, nchars);
+}
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Here we made use of the &lt;code&gt;fold&lt;/code&gt; function, which allows us to define custom
 accumulation logic, although we could have done the same thing with a &lt;code&gt;map(|x|

@@ -455,7 +455,8 @@ processing pipeline on the range of numbers between one and 1000:</p>
         .collect::<span style="color:#f92672">&lt;</span>Vec<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;&gt;</span>();
     dbg<span style="color:#f92672">!</span>(<span style="color:#f92672">&amp;</span>numbers);
     <span style="color:#66d9ef">let</span> nchars <span style="color:#f92672">=</span> numbers.iter().fold(<span style="color:#ae81ff">0</span>, <span style="color:#f92672">|</span>acc, x<span style="color:#f92672">|</span> acc <span style="color:#f92672">+</span> x.len());
-println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}&#34;</span>, nchars);
+    println<span style="color:#f92672">!</span>(<span style="color:#e6db74">&#34;{}&#34;</span>, nchars);
+}
 </code></pre></div>
 <p>Here we made use of the <code>fold</code> function, which allows us to define custom
 accumulation logic, although we could have done the same thing with a <code>map(|x|
