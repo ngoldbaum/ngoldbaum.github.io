@@ -458,7 +458,8 @@ fn main() {
         .collect::<Vec<String>>();
     dbg!(&numbers);
     let nchars = numbers.iter().fold(0, |acc, x| acc + x.len());
-println!("{}", nchars);
+    println!("{}", nchars);
+}
 ```
 
 Here we made use of the `fold` function, which allows us to define custom
