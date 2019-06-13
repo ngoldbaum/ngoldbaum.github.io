@@ -134,7 +134,7 @@ boilerplate code for each error type.
 The rust error handling story is still somewhat in flux. For example, [RFC
 2504](https://github.com/rust-lang/rfcs/blob/master/text/2504-fix-error.md)
 describes an ongoing effort to reword the `Error` type in the standard
-library). In online discussions people might suggest using the
+library. In online discussions people might suggest using the
 [`error-chain`](https://github.com/rust-lang-nursery/error-chain) crate, the
 [`failure`](https://github.com/rust-lang-nursery/failure) crate, or suggest just
 using the standard library `Error` type and having lots of boilerplate in code
