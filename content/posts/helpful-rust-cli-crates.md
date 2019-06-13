@@ -314,7 +314,7 @@ that's because any other subcommand name will be caught and result in an error
 message reported to the user at the command line. Here's a small command-line
 session to see all of that in action:
 
-```bash
+```
 $ rug
 rug 0.1
 Nathan Goldbaum
