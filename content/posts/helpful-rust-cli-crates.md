@@ -1,5 +1,5 @@
 ---
-title: "The Rust Module System and Useful Crates for Command Line Applications"
+title: "The Rust Module System and Useful Crates for CLI Apps"
 slug: helpful-rust-cli-crates
 summary : >
   Exploration of rust crates that are useful for writing command-line applications.
