@@ -294,8 +294,9 @@ someone passes in &lt;code&gt;log&lt;/code&gt;. Note that the default branch is 
 that&amp;rsquo;s because any other subcommand name will be caught and result in an error
 message reported to the user at the command line. Here&amp;rsquo;s a small command-line
 session to see all of that in action:&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;$ rug
-rug &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;.1
+
+&lt;pre&gt;&lt;code&gt;$ rug
+rug 0.1
 Nathan Goldbaum
 A rust implementation of some hg functionality
 
@@ -307,16 +308,18 @@ FLAGS:
     -V, --version    Prints version information
 
 SUBCOMMANDS:
-    help    Prints this message or the help of the given subcommand&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;s&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+    help    Prints this message or the help of the given subcommand(s)
     log
 
 $ rug notacommand
-error: Found argument &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;notacommand&amp;#39;&lt;/span&gt; which wasn&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;t expected, or isn&amp;#39;&lt;/span&gt;t valid in this context
+error: Found argument &#39;notacommand&#39; which wasn&#39;t expected, or isn&#39;t valid in this context
 
 USAGE:
     rug &amp;lt;SUBCOMMAND&amp;gt;
 
-For more information try --help&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+For more information try --help
+&lt;/code&gt;&lt;/pre&gt;
+
 &lt;p&gt;I also get colored output in the error case to visually highlight the important
 parts of the error message to the user - the colored output doesn&amp;rsquo;t show up in
 this post so don&amp;rsquo;t worry that you can&amp;rsquo;t see it here. I get all of this fancy

@@ -324,8 +324,9 @@ someone passes in <code>log</code>. Note that the default branch is marked as un
 that&rsquo;s because any other subcommand name will be caught and result in an error
 message reported to the user at the command line. Here&rsquo;s a small command-line
 session to see all of that in action:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ rug
-rug <span style="color:#ae81ff">0</span>.1
+
+<pre><code>$ rug
+rug 0.1
 Nathan Goldbaum
 A rust implementation of some hg functionality
 
@@ -337,16 +338,18 @@ FLAGS:
     -V, --version    Prints version information
 
 SUBCOMMANDS:
-    help    Prints this message or the help of the given subcommand<span style="color:#f92672">(</span>s<span style="color:#f92672">)</span>
+    help    Prints this message or the help of the given subcommand(s)
     log
 
 $ rug notacommand
-error: Found argument <span style="color:#e6db74">&#39;notacommand&#39;</span> which wasn<span style="color:#e6db74">&#39;t expected, or isn&#39;</span>t valid in this context
+error: Found argument 'notacommand' which wasn't expected, or isn't valid in this context
 
 USAGE:
     rug &lt;SUBCOMMAND&gt;
 
-For more information try --help</code></pre></div>
+For more information try --help
+</code></pre>
+
 <p>I also get colored output in the error case to visually highlight the important
 parts of the error message to the user - the colored output doesn&rsquo;t show up in
 this post so don&rsquo;t worry that you can&rsquo;t see it here. I get all of this fancy
