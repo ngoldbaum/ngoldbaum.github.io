@@ -1,8 +1,8 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 	<channel>
-		<title>Rust on Nathan&#39;s RC blog</title>
+		<title>Rust on Nathan Goldbaum</title>
 		<link>https://ngoldbaum.github.io/tags/rust/</link>
-		<description>Recent content in Rust on Nathan&#39;s RC blog</description>
+		<description>Recent content in Rust on Nathan Goldbaum</description>
 		<generator>Hugo 0.55.6 -- gohugo.io</generator>
 		<language>en-us</language>
 		<lastBuildDate>Wed, 12 Jun 2019 10:06:24 -0400</lastBuildDate>

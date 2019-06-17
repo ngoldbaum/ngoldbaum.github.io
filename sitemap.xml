@@ -3,6 +3,22 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>https://ngoldbaum.github.io/contact/</loc>
+    <lastmod>2019-06-17T11:44:59-04:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://ngoldbaum.github.io/</loc>
+    <lastmod>2019-06-17T11:44:59-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://ngoldbaum.github.io/about/</loc>
+    <lastmod>2019-06-17T10:04:37-04:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://ngoldbaum.github.io/categories/</loc>
     <lastmod>2019-06-12T10:06:24-04:00</lastmod>
     <priority>0</priority>
@@ -10,12 +26,6 @@
   
   <url>
     <loc>https://ngoldbaum.github.io/tags/mercurial/</loc>
-    <lastmod>2019-06-12T10:06:24-04:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://ngoldbaum.github.io/</loc>
     <lastmod>2019-06-12T10:06:24-04:00</lastmod>
     <priority>0</priority>
   </url>

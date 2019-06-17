@@ -1,8 +1,8 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 	<channel>
-		<title>Python on Nathan&#39;s RC blog</title>
+		<title>Python on Nathan Goldbaum</title>
 		<link>https://ngoldbaum.github.io/tags/python/</link>
-		<description>Recent content in Python on Nathan&#39;s RC blog</description>
+		<description>Recent content in Python on Nathan Goldbaum</description>
 		<generator>Hugo 0.55.6 -- gohugo.io</generator>
 		<language>en-us</language>
 		<lastBuildDate>Fri, 24 May 2019 15:24:59 -0400</lastBuildDate>
