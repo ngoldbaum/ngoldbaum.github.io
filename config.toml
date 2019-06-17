@@ -8,7 +8,7 @@ pygmentsCodeFences = true
   [[menu.main]]
   identifier = "about"
   name = "About"
-  url = "/about"
+  url = "/"
 
   [[menu.main]]
   identifier = "blog"

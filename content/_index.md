@@ -1,6 +1,6 @@
 ---
-title: "About"
-date: 2019-06-17T10:04:37-04:00
+title: ""
+date: 2019-06-17T14:59:07-04:00
 ---
 
 ![Nathan Goldbaum](/ngoldbaum2019.jpg#center)
