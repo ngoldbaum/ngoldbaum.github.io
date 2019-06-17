@@ -14,3 +14,11 @@ date: 2019-06-17T11:44:59-04:00
 {{% fontawesome linkedin %}} [ngoldbaum](https://www.linkedin.com/in/ngoldbaum/)
 
 {{% fontawesome stack-overflow %}} [ngoldbaum](https://stackoverflow.com/users/1382869/ngoldbaum)
+
+{{% fontawesome lobsters %}} [ngoldbaum](https://lobste.rs/u/ngoldbaum)
+
+{{% fontawesome hacker-news %}} [ngoldbaum](https://news.ycombinator.com/user?id=ngoldbaum)
+
+{{% fontawesome reddit %}} [nathan12343](https://www.reddit.com/user/nathan12343)
+
+
