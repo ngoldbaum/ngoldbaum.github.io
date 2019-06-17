@@ -1,5 +1,26 @@
 baseURL = "https://ngoldbaum.github.io/"
 languageCode = "en-us"
-title = "Nathan's RC blog"
+title = "Nathan Goldbaum"
 theme = "slick"
 pygmentsCodeFences = true
+
+[menu]
+  [[menu.main]]
+  identifier = "about"
+  name = "About"
+  url = "/about"
+
+  [[menu.main]]
+  identifier = "blog"
+  name = "Blog"
+  url = "/posts"
+
+  [[menu.main]]
+  identifier = "contact"
+  name = "Contact"
+  url = "/contact"
+
+  [[menu.main]]
+  identifier = "resume"
+  name = "Résumé"
+  url = "/cv.pdf"
