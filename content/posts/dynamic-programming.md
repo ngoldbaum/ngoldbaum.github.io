@@ -121,7 +121,7 @@ def fib(n):
 
 Here we've created a decorator `memoize` that stores a dictionary that caches
 the results of the function, using the inputs to the function as the cache
-keys. We then apply the `memoize` decorator to the `fib` function, whcih is
+keys. We then apply the `memoize` decorator to the `fib` function, which is
 unchanged from above. This implementation is *substantially* faster, we're now
 able to calculate `$F_{100}$` in less than a millisecond:
 
