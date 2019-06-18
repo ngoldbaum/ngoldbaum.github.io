@@ -159,7 +159,7 @@ we saved and avoid recursively recomputing all Fibonacci numbers smaller than
     <span style="color:#66d9ef">return</span> fib(n<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>) <span style="color:#f92672">+</span> fib(n<span style="color:#f92672">-</span><span style="color:#ae81ff">2</span>)</code></pre></div>
 <p>Here we&rsquo;ve created a decorator <code>memoize</code> that stores a dictionary that caches
 the results of the function, using the inputs to the function as the cache
-keys. We then apply the <code>memoize</code> decorator to the <code>fib</code> function, whcih is
+keys. We then apply the <code>memoize</code> decorator to the <code>fib</code> function, which is
 unchanged from above. This implementation is <em>substantially</em> faster, we&rsquo;re now
 able to calculate <code>$F_{100}$</code> in less than a millisecond:</p>
 

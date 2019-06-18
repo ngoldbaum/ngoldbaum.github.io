@@ -912,7 +912,7 @@ we saved and avoid recursively recomputing all Fibonacci numbers smaller than
     &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; fib(n&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;) &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; fib(n&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;)&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;Here we&amp;rsquo;ve created a decorator &lt;code&gt;memoize&lt;/code&gt; that stores a dictionary that caches
 the results of the function, using the inputs to the function as the cache
-keys. We then apply the &lt;code&gt;memoize&lt;/code&gt; decorator to the &lt;code&gt;fib&lt;/code&gt; function, whcih is
+keys. We then apply the &lt;code&gt;memoize&lt;/code&gt; decorator to the &lt;code&gt;fib&lt;/code&gt; function, which is
 unchanged from above. This implementation is &lt;em&gt;substantially&lt;/em&gt; faster, we&amp;rsquo;re now
 able to calculate &lt;code&gt;$F_{100}$&lt;/code&gt; in less than a millisecond:&lt;/p&gt;
 
