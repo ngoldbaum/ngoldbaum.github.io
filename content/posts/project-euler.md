@@ -159,7 +159,7 @@ like C or C++:
 {{< tweet 1134102247149887488 >}}
 
 In this way we know immediately when the builtin integer types are no longer
-sufficient and we need to switch to an aribtrary-precision integer arithmetic
+sufficient and we need to switch to an arbitrary-precision integer arithmetic
 library. 
 
 Currently, the most popular library for this sort of thing on
