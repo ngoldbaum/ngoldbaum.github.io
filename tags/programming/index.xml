@@ -524,7 +524,7 @@ like C or C++:&lt;/p&gt;
 
 
 &lt;p&gt;In this way we know immediately when the builtin integer types are no longer
-sufficient and we need to switch to an aribtrary-precision integer arithmetic
+sufficient and we need to switch to an arbitrary-precision integer arithmetic
 library.&lt;/p&gt;
 
 &lt;p&gt;Currently, the most popular library for this sort of thing on
