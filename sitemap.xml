@@ -3,20 +3,55 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>https://ngoldbaum.github.io/posts/co2-monitor/</loc>
-    <lastmod>2019-06-26T16:45:10-04:00</lastmod>
+    <loc>https://ngoldbaum.github.io/categories/</loc>
+    <lastmod>2019-07-25T16:41:04-04:00</lastmod>
+    <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://ngoldbaum.github.io/categories/</loc>
-    <lastmod>2019-06-26T16:45:10-04:00</lastmod>
+    <loc>https://ngoldbaum.github.io/posts/loading-mnist-data-in-rust/</loc>
+    <lastmod>2019-07-25T16:41:04-04:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://ngoldbaum.github.io/tags/machine-learning/</loc>
+    <lastmod>2019-07-25T16:41:04-04:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>https://ngoldbaum.github.io/posts/</loc>
-    <lastmod>2019-06-26T16:45:10-04:00</lastmod>
+    <lastmod>2019-07-25T16:41:04-04:00</lastmod>
     <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://ngoldbaum.github.io/tags/programming/</loc>
+    <lastmod>2019-07-25T16:41:04-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://ngoldbaum.github.io/tags/rust/</loc>
+    <lastmod>2019-07-25T16:41:04-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://ngoldbaum.github.io/tags/</loc>
+    <lastmod>2019-07-25T16:41:04-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://ngoldbaum.github.io/categories/technical/</loc>
+    <lastmod>2019-07-25T16:41:04-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://ngoldbaum.github.io/posts/co2-monitor/</loc>
+    <lastmod>2019-06-26T16:45:10-04:00</lastmod>
   </url>
   
   <url>
@@ -27,18 +62,6 @@
   
   <url>
     <loc>https://ngoldbaum.github.io/tags/raspberry-pi/</loc>
-    <lastmod>2019-06-26T16:45:10-04:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://ngoldbaum.github.io/tags/</loc>
-    <lastmod>2019-06-26T16:45:10-04:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://ngoldbaum.github.io/categories/technical/</loc>
     <lastmod>2019-06-26T16:45:10-04:00</lastmod>
     <priority>0</priority>
   </url>
@@ -55,18 +78,6 @@
   
   <url>
     <loc>https://ngoldbaum.github.io/tags/mercurial/</loc>
-    <lastmod>2019-06-12T10:06:24-04:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://ngoldbaum.github.io/tags/programming/</loc>
-    <lastmod>2019-06-12T10:06:24-04:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://ngoldbaum.github.io/tags/rust/</loc>
     <lastmod>2019-06-12T10:06:24-04:00</lastmod>
     <priority>0</priority>
   </url>

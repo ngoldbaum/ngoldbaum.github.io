@@ -5,8 +5,29 @@
 		<description>Recent content in Tags on Nathan Goldbaum</description>
 		<generator>Hugo 0.55.6 -- gohugo.io</generator>
 		<language>en-us</language>
-		<lastBuildDate>Wed, 26 Jun 2019 16:45:10 -0400</lastBuildDate>
+		<lastBuildDate>Thu, 25 Jul 2019 16:41:04 -0400</lastBuildDate>
 		<atom:link href="https://ngoldbaum.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+		<item>
+			<title>Machine Learning</title>
+			<link>https://ngoldbaum.github.io/tags/machine-learning/</link>
+			<pubDate>Thu, 25 Jul 2019 16:41:04 -0400</pubDate>
+			<guid isPermaLink="true">https://ngoldbaum.github.io/tags/machine-learning/</guid>
+			<description></description>
+		</item>
+		<item>
+			<title>Programming</title>
+			<link>https://ngoldbaum.github.io/tags/programming/</link>
+			<pubDate>Thu, 25 Jul 2019 16:41:04 -0400</pubDate>
+			<guid isPermaLink="true">https://ngoldbaum.github.io/tags/programming/</guid>
+			<description></description>
+		</item>
+		<item>
+			<title>Rust</title>
+			<link>https://ngoldbaum.github.io/tags/rust/</link>
+			<pubDate>Thu, 25 Jul 2019 16:41:04 -0400</pubDate>
+			<guid isPermaLink="true">https://ngoldbaum.github.io/tags/rust/</guid>
+			<description></description>
+		</item>
 		<item>
 			<title>Python</title>
 			<link>https://ngoldbaum.github.io/tags/python/</link>
@@ -26,20 +47,6 @@
 			<link>https://ngoldbaum.github.io/tags/mercurial/</link>
 			<pubDate>Wed, 12 Jun 2019 10:06:24 -0400</pubDate>
 			<guid isPermaLink="true">https://ngoldbaum.github.io/tags/mercurial/</guid>
-			<description></description>
-		</item>
-		<item>
-			<title>Programming</title>
-			<link>https://ngoldbaum.github.io/tags/programming/</link>
-			<pubDate>Wed, 12 Jun 2019 10:06:24 -0400</pubDate>
-			<guid isPermaLink="true">https://ngoldbaum.github.io/tags/programming/</guid>
-			<description></description>
-		</item>
-		<item>
-			<title>Rust</title>
-			<link>https://ngoldbaum.github.io/tags/rust/</link>
-			<pubDate>Wed, 12 Jun 2019 10:06:24 -0400</pubDate>
-			<guid isPermaLink="true">https://ngoldbaum.github.io/tags/rust/</guid>
 			<description></description>
 		</item>
 		<item>
