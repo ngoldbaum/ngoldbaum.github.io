@@ -215,19 +215,19 @@ ecosystem of tools harder to learn.&lt;/p&gt;
         &lt;span style=&#34;color:#66d9ef&#34;&gt;let&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;mut&lt;/span&gt; nabla_w: Vec&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;Array2&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;f64&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; zero_vec_like(&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;self.weights);
         &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; i &lt;span style=&#34;color:#66d9ef&#34;&gt;in&lt;/span&gt; mini_batch_indices {
             &lt;span style=&#34;color:#66d9ef&#34;&gt;let&lt;/span&gt; (delta_nabla_b, delta_nabla_w) &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; self.backprop(&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;training_data[&lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;i]);
-            &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; j &lt;span style=&#34;color:#66d9ef&#34;&gt;in&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;..nabla_b.len() {
-                nabla_b[j] &lt;span style=&#34;color:#f92672&#34;&gt;+=&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;delta_nabla_b[j];
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; (nb, dnb) &lt;span style=&#34;color:#66d9ef&#34;&gt;in&lt;/span&gt; nabla_b.iter_mut().zip(delta_nabla_b.iter()) {
+                &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;nb &lt;span style=&#34;color:#f92672&#34;&gt;+=&lt;/span&gt; dnb;
             }
-            &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; j &lt;span style=&#34;color:#66d9ef&#34;&gt;in&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;..nabla_w.len() {
-                nabla_w[j] &lt;span style=&#34;color:#f92672&#34;&gt;+=&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;delta_nabla_w[j];
+            &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; (nw, dnw) &lt;span style=&#34;color:#66d9ef&#34;&gt;in&lt;/span&gt; nabla_w.iter_mut().zip(delta_nabla_w.iter()) {
+                &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;nw &lt;span style=&#34;color:#f92672&#34;&gt;+=&lt;/span&gt; dnw;
             }
         }
         &lt;span style=&#34;color:#66d9ef&#34;&gt;let&lt;/span&gt; nbatch &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; mini_batch_indices.len() &lt;span style=&#34;color:#66d9ef&#34;&gt;as&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;f64&lt;/span&gt;;
-        &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; i &lt;span style=&#34;color:#66d9ef&#34;&gt;in&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;..self.weights.len() {
-            self.weights[i] &lt;span style=&#34;color:#f92672&#34;&gt;-=&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;nabla_w[i].mapv(&lt;span style=&#34;color:#f92672&#34;&gt;|&lt;/span&gt;x&lt;span style=&#34;color:#f92672&#34;&gt;|&lt;/span&gt; x &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; eta &lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt; nbatch);
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; (w, nw) &lt;span style=&#34;color:#66d9ef&#34;&gt;in&lt;/span&gt; self.weights.iter_mut().zip(nabla_w.iter()) {
+            &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;w &lt;span style=&#34;color:#f92672&#34;&gt;-=&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;nw.mapv(&lt;span style=&#34;color:#f92672&#34;&gt;|&lt;/span&gt;x&lt;span style=&#34;color:#f92672&#34;&gt;|&lt;/span&gt; x &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; eta &lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt; nbatch);
         }
-        &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; i &lt;span style=&#34;color:#66d9ef&#34;&gt;in&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;..self.biases.len() {
-            self.biases[i] &lt;span style=&#34;color:#f92672&#34;&gt;-=&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;nabla_b[i].mapv(&lt;span style=&#34;color:#f92672&#34;&gt;|&lt;/span&gt;x&lt;span style=&#34;color:#f92672&#34;&gt;|&lt;/span&gt; x &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; eta &lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt; nbatch);
+        &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; (b, nb) &lt;span style=&#34;color:#66d9ef&#34;&gt;in&lt;/span&gt; self.biases.iter_mut().zip(nabla_b.iter()) {
+            &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;b &lt;span style=&#34;color:#f92672&#34;&gt;-=&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;nb.mapv(&lt;span style=&#34;color:#f92672&#34;&gt;|&lt;/span&gt;x&lt;span style=&#34;color:#f92672&#34;&gt;|&lt;/span&gt; x &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; eta &lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt; nbatch);
         }
     }
 }
@@ -282,25 +282,25 @@ as a function of the biases and weights:&lt;/p&gt;
 modulated by the learning rate:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-rust&#34; data-lang=&#34;rust&#34;&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;let&lt;/span&gt; nbatch &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; mini_batch_indices.len() &lt;span style=&#34;color:#66d9ef&#34;&gt;as&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;f64&lt;/span&gt;;
 &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; (w, nw) &lt;span style=&#34;color:#66d9ef&#34;&gt;in&lt;/span&gt; self.weights.iter_mut().zip(nabla_w.iter()) {
-    &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;w &lt;span style=&#34;color:#f92672&#34;&gt;-=&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;(nw.mapv(&lt;span style=&#34;color:#f92672&#34;&gt;|&lt;/span&gt;x&lt;span style=&#34;color:#f92672&#34;&gt;|&lt;/span&gt; x &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; eta &lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt; nbatch));
+    &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;w &lt;span style=&#34;color:#f92672&#34;&gt;-=&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;nw.mapv(&lt;span style=&#34;color:#f92672&#34;&gt;|&lt;/span&gt;x&lt;span style=&#34;color:#f92672&#34;&gt;|&lt;/span&gt; x &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; eta &lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt; nbatch);
 }
 &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; (b, nb) &lt;span style=&#34;color:#66d9ef&#34;&gt;in&lt;/span&gt; self.biases.iter_mut().zip(nabla_b.iter()) {
-    &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;b &lt;span style=&#34;color:#f92672&#34;&gt;-=&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;(nb.mapv(&lt;span style=&#34;color:#f92672&#34;&gt;|&lt;/span&gt;x&lt;span style=&#34;color:#f92672&#34;&gt;|&lt;/span&gt; x &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; eta &lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt; nbatch));
+    &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;b &lt;span style=&#34;color:#f92672&#34;&gt;-=&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;nb.mapv(&lt;span style=&#34;color:#f92672&#34;&gt;|&lt;/span&gt;x&lt;span style=&#34;color:#f92672&#34;&gt;|&lt;/span&gt; x &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; eta &lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt; nbatch);
 }
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 &lt;p&gt;This example illustrates how the ergonomics of working with array data is very
 different in Rust compared with Python. First, rather than multiplying the array
 by the float &lt;code&gt;eta / nbatch&lt;/code&gt;, we instead use &lt;code&gt;Array::mapv&lt;/code&gt; and define a closure
 in-line to map in a vectorized manner over the full array. This sort of thing
-would not be very fast in Python because function calls are very slow. In rust it
-doesn&amp;rsquo;t make much difference. We also need to wrap the return value of &lt;code&gt;mapv&lt;/code&gt; in
-parens and borrow it with &lt;code&gt;&amp;amp;&lt;/code&gt; when we subtract, lest we consume the array data
-while we iterate over it. Needing to think carefully about whether functions
-consume data or take references makes it much more conceptually demanding to
-write code like this in Rust than in Python. On the other hand I do have much
-higher confidence that my code is correct when it compiles. I&amp;rsquo;m not sure whether
-the fact that this code was so demanding for me to write is due to Rust really
-being harder to write or the disparity between my experience in Rust and Python.&lt;/p&gt;
+would not be very fast in Python because function calls are very slow. In rust
+it doesn&amp;rsquo;t make much difference. We also need to borrow the return value of
+&lt;code&gt;mapv&lt;/code&gt; with &lt;code&gt;&amp;amp;&lt;/code&gt; when we subtract, lest we consume the array data while we
+iterate over it. Needing to think carefully about whether functions consume data
+or take references makes it much more conceptually demanding to write code like
+this in Rust than in Python. On the other hand I do have much higher confidence
+that my code is correct when it compiles. I&amp;rsquo;m not sure whether the fact that
+this code was so demanding for me to write is due to Rust really being harder to
+write or the disparity between my experience in Rust and Python.&lt;/p&gt;
 
 &lt;h2 id=&#34;rewrite-it-in-rust-and-everything-will-be-better&#34;&gt;Rewrite it in rust and everything will be better&lt;/h2&gt;
 

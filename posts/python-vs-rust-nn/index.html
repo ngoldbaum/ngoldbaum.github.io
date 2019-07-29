@@ -263,19 +263,19 @@ ecosystem of tools harder to learn.</p>
         <span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> nabla_w: Vec<span style="color:#f92672">&lt;</span>Array2<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">f64</span><span style="color:#f92672">&gt;&gt;</span> <span style="color:#f92672">=</span> zero_vec_like(<span style="color:#f92672">&amp;</span>self.weights);
         <span style="color:#66d9ef">for</span> i <span style="color:#66d9ef">in</span> mini_batch_indices {
             <span style="color:#66d9ef">let</span> (delta_nabla_b, delta_nabla_w) <span style="color:#f92672">=</span> self.backprop(<span style="color:#f92672">&amp;</span>training_data[<span style="color:#f92672">*</span>i]);
-            <span style="color:#66d9ef">for</span> j <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">0</span>..nabla_b.len() {
-                nabla_b[j] <span style="color:#f92672">+=</span> <span style="color:#f92672">&amp;</span>delta_nabla_b[j];
+            <span style="color:#66d9ef">for</span> (nb, dnb) <span style="color:#66d9ef">in</span> nabla_b.iter_mut().zip(delta_nabla_b.iter()) {
+                <span style="color:#f92672">*</span>nb <span style="color:#f92672">+=</span> dnb;
             }
-            <span style="color:#66d9ef">for</span> j <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">0</span>..nabla_w.len() {
-                nabla_w[j] <span style="color:#f92672">+=</span> <span style="color:#f92672">&amp;</span>delta_nabla_w[j];
+            <span style="color:#66d9ef">for</span> (nw, dnw) <span style="color:#66d9ef">in</span> nabla_w.iter_mut().zip(delta_nabla_w.iter()) {
+                <span style="color:#f92672">*</span>nw <span style="color:#f92672">+=</span> dnw;
             }
         }
         <span style="color:#66d9ef">let</span> nbatch <span style="color:#f92672">=</span> mini_batch_indices.len() <span style="color:#66d9ef">as</span> <span style="color:#66d9ef">f64</span>;
-        <span style="color:#66d9ef">for</span> i <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">0</span>..self.weights.len() {
-            self.weights[i] <span style="color:#f92672">-=</span> <span style="color:#f92672">&amp;</span>nabla_w[i].mapv(<span style="color:#f92672">|</span>x<span style="color:#f92672">|</span> x <span style="color:#f92672">*</span> eta <span style="color:#f92672">/</span> nbatch);
+        <span style="color:#66d9ef">for</span> (w, nw) <span style="color:#66d9ef">in</span> self.weights.iter_mut().zip(nabla_w.iter()) {
+            <span style="color:#f92672">*</span>w <span style="color:#f92672">-=</span> <span style="color:#f92672">&amp;</span>nw.mapv(<span style="color:#f92672">|</span>x<span style="color:#f92672">|</span> x <span style="color:#f92672">*</span> eta <span style="color:#f92672">/</span> nbatch);
         }
-        <span style="color:#66d9ef">for</span> i <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">0</span>..self.biases.len() {
-            self.biases[i] <span style="color:#f92672">-=</span> <span style="color:#f92672">&amp;</span>nabla_b[i].mapv(<span style="color:#f92672">|</span>x<span style="color:#f92672">|</span> x <span style="color:#f92672">*</span> eta <span style="color:#f92672">/</span> nbatch);
+        <span style="color:#66d9ef">for</span> (b, nb) <span style="color:#66d9ef">in</span> self.biases.iter_mut().zip(nabla_b.iter()) {
+            <span style="color:#f92672">*</span>b <span style="color:#f92672">-=</span> <span style="color:#f92672">&amp;</span>nb.mapv(<span style="color:#f92672">|</span>x<span style="color:#f92672">|</span> x <span style="color:#f92672">*</span> eta <span style="color:#f92672">/</span> nbatch);
         }
     }
 }
@@ -330,25 +330,25 @@ as a function of the biases and weights:</p>
 modulated by the learning rate:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-rust" data-lang="rust"><span style="color:#66d9ef">let</span> nbatch <span style="color:#f92672">=</span> mini_batch_indices.len() <span style="color:#66d9ef">as</span> <span style="color:#66d9ef">f64</span>;
 <span style="color:#66d9ef">for</span> (w, nw) <span style="color:#66d9ef">in</span> self.weights.iter_mut().zip(nabla_w.iter()) {
-    <span style="color:#f92672">*</span>w <span style="color:#f92672">-=</span> <span style="color:#f92672">&amp;</span>(nw.mapv(<span style="color:#f92672">|</span>x<span style="color:#f92672">|</span> x <span style="color:#f92672">*</span> eta <span style="color:#f92672">/</span> nbatch));
+    <span style="color:#f92672">*</span>w <span style="color:#f92672">-=</span> <span style="color:#f92672">&amp;</span>nw.mapv(<span style="color:#f92672">|</span>x<span style="color:#f92672">|</span> x <span style="color:#f92672">*</span> eta <span style="color:#f92672">/</span> nbatch);
 }
 <span style="color:#66d9ef">for</span> (b, nb) <span style="color:#66d9ef">in</span> self.biases.iter_mut().zip(nabla_b.iter()) {
-    <span style="color:#f92672">*</span>b <span style="color:#f92672">-=</span> <span style="color:#f92672">&amp;</span>(nb.mapv(<span style="color:#f92672">|</span>x<span style="color:#f92672">|</span> x <span style="color:#f92672">*</span> eta <span style="color:#f92672">/</span> nbatch));
+    <span style="color:#f92672">*</span>b <span style="color:#f92672">-=</span> <span style="color:#f92672">&amp;</span>nb.mapv(<span style="color:#f92672">|</span>x<span style="color:#f92672">|</span> x <span style="color:#f92672">*</span> eta <span style="color:#f92672">/</span> nbatch);
 }
 </code></pre></div>
 <p>This example illustrates how the ergonomics of working with array data is very
 different in Rust compared with Python. First, rather than multiplying the array
 by the float <code>eta / nbatch</code>, we instead use <code>Array::mapv</code> and define a closure
 in-line to map in a vectorized manner over the full array. This sort of thing
-would not be very fast in Python because function calls are very slow. In rust it
-doesn&rsquo;t make much difference. We also need to wrap the return value of <code>mapv</code> in
-parens and borrow it with <code>&amp;</code> when we subtract, lest we consume the array data
-while we iterate over it. Needing to think carefully about whether functions
-consume data or take references makes it much more conceptually demanding to
-write code like this in Rust than in Python. On the other hand I do have much
-higher confidence that my code is correct when it compiles. I&rsquo;m not sure whether
-the fact that this code was so demanding for me to write is due to Rust really
-being harder to write or the disparity between my experience in Rust and Python.</p>
+would not be very fast in Python because function calls are very slow. In rust
+it doesn&rsquo;t make much difference. We also need to borrow the return value of
+<code>mapv</code> with <code>&amp;</code> when we subtract, lest we consume the array data while we
+iterate over it. Needing to think carefully about whether functions consume data
+or take references makes it much more conceptually demanding to write code like
+this in Rust than in Python. On the other hand I do have much higher confidence
+that my code is correct when it compiles. I&rsquo;m not sure whether the fact that
+this code was so demanding for me to write is due to Rust really being harder to
+write or the disparity between my experience in Rust and Python.</p>
 
 <h2 id="rewrite-it-in-rust-and-everything-will-be-better">Rewrite it in rust and everything will be better</h2>
 
