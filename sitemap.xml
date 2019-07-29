@@ -4,7 +4,48 @@
   
   <url>
     <loc>https://ngoldbaum.github.io/categories/</loc>
-    <lastmod>2019-07-25T16:41:04-04:00</lastmod>
+    <lastmod>2019-07-26T14:17:19-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://ngoldbaum.github.io/posts/</loc>
+    <lastmod>2019-07-26T14:17:19-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://ngoldbaum.github.io/tags/programming/</loc>
+    <lastmod>2019-07-26T14:17:19-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://ngoldbaum.github.io/tags/python/</loc>
+    <lastmod>2019-07-26T14:17:19-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://ngoldbaum.github.io/posts/python-vs-rust-nn/</loc>
+    <lastmod>2019-07-26T14:17:19-04:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://ngoldbaum.github.io/tags/rust/</loc>
+    <lastmod>2019-07-26T14:17:19-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://ngoldbaum.github.io/tags/</loc>
+    <lastmod>2019-07-26T14:17:19-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://ngoldbaum.github.io/categories/technical/</loc>
+    <lastmod>2019-07-26T14:17:19-04:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -20,44 +61,8 @@
   </url>
   
   <url>
-    <loc>https://ngoldbaum.github.io/posts/</loc>
-    <lastmod>2019-07-25T16:41:04-04:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://ngoldbaum.github.io/tags/programming/</loc>
-    <lastmod>2019-07-25T16:41:04-04:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://ngoldbaum.github.io/tags/rust/</loc>
-    <lastmod>2019-07-25T16:41:04-04:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://ngoldbaum.github.io/tags/</loc>
-    <lastmod>2019-07-25T16:41:04-04:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://ngoldbaum.github.io/categories/technical/</loc>
-    <lastmod>2019-07-25T16:41:04-04:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
     <loc>https://ngoldbaum.github.io/posts/co2-monitor/</loc>
     <lastmod>2019-06-26T16:45:10-04:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://ngoldbaum.github.io/tags/python/</loc>
-    <lastmod>2019-06-26T16:45:10-04:00</lastmod>
-    <priority>0</priority>
   </url>
   
   <url>
