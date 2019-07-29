@@ -231,19 +231,19 @@ impl Network {
         let mut nabla_w: Vec<Array2<f64>> = zero_vec_like(&self.weights);
         for i in mini_batch_indices {
             let (delta_nabla_b, delta_nabla_w) = self.backprop(&training_data[*i]);
-            for j in 0..nabla_b.len() {
-                nabla_b[j] += &delta_nabla_b[j];
+            for (nb, dnb) in nabla_b.iter_mut().zip(delta_nabla_b.iter()) {
+                *nb += dnb;
             }
-            for j in 0..nabla_w.len() {
-                nabla_w[j] += &delta_nabla_w[j];
+            for (nw, dnw) in nabla_w.iter_mut().zip(delta_nabla_w.iter()) {
+                *nw += dnw;
             }
         }
         let nbatch = mini_batch_indices.len() as f64;
-        for i in 0..self.weights.len() {
-            self.weights[i] -= &nabla_w[i].mapv(|x| x * eta / nbatch);
+        for (w, nw) in self.weights.iter_mut().zip(nabla_w.iter()) {
+            *w -= &nw.mapv(|x| x * eta / nbatch);
         }
-        for i in 0..self.biases.len() {
-            self.biases[i] -= &nabla_b[i].mapv(|x| x * eta / nbatch);
+        for (b, nb) in self.biases.iter_mut().zip(nabla_b.iter()) {
+            *b -= &nb.mapv(|x| x * eta / nbatch);
         }
     }
 }
@@ -310,10 +310,10 @@ modulated by the learning rate:
 ```rust
 let nbatch = mini_batch_indices.len() as f64;
 for (w, nw) in self.weights.iter_mut().zip(nabla_w.iter()) {
-    *w -= &(nw.mapv(|x| x * eta / nbatch));
+    *w -= &nw.mapv(|x| x * eta / nbatch);
 }
 for (b, nb) in self.biases.iter_mut().zip(nabla_b.iter()) {
-    *b -= &(nb.mapv(|x| x * eta / nbatch));
+    *b -= &nb.mapv(|x| x * eta / nbatch);
 }
 ```
 
@@ -321,15 +321,15 @@ This example illustrates how the ergonomics of working with array data is very
 different in Rust compared with Python. First, rather than multiplying the array
 by the float `eta / nbatch`, we instead use `Array::mapv` and define a closure
 in-line to map in a vectorized manner over the full array. This sort of thing
-would not be very fast in Python because function calls are very slow. In rust it
-doesn't make much difference. We also need to wrap the return value of `mapv` in
-parens and borrow it with `&` when we subtract, lest we consume the array data
-while we iterate over it. Needing to think carefully about whether functions
-consume data or take references makes it much more conceptually demanding to
-write code like this in Rust than in Python. On the other hand I do have much
-higher confidence that my code is correct when it compiles. I'm not sure whether
-the fact that this code was so demanding for me to write is due to Rust really
-being harder to write or the disparity between my experience in Rust and Python.
+would not be very fast in Python because function calls are very slow. In rust
+it doesn't make much difference. We also need to borrow the return value of
+`mapv` with `&` when we subtract, lest we consume the array data while we
+iterate over it. Needing to think carefully about whether functions consume data
+or take references makes it much more conceptually demanding to write code like
+this in Rust than in Python. On the other hand I do have much higher confidence
+that my code is correct when it compiles. I'm not sure whether the fact that
+this code was so demanding for me to write is due to Rust really being harder to
+write or the disparity between my experience in Rust and Python.
 
 ## Rewrite it in rust and everything will be better
 
