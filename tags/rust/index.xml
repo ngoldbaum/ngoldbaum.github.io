@@ -338,13 +338,6 @@ function s(node) {		// show
 function c() {			// clear
     details.nodeValue = &#39; &#39;;
 }
-// ctrl-F for search
-window.addEventListener(&#34;keydown&#34;,function (e) {
-    if (e.keyCode === 114 || (e.ctrlKey &amp;&amp; e.keyCode === 70)) {
-        e.preventDefault();
-        search_prompt();
-    }
-})
 // functions
 function find_child(parent, name, attr) {
     var children = parent.childNodes;
