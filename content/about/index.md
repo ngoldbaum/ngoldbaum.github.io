@@ -12,9 +12,9 @@ Python](https://py-free-threading.github.io). During the course of this project,
 I led the effort to support [free-threaded
 Python](https://docs.python.org/3/whatsnew/3.13.html#whatsnew313-free-threaded-cpython)
 in [NumPy](https://numpy.org/) and helped add support for free-threaded Python
-to foundational community Python projects accross the ecosystem. I also am the
+to foundational community Python projects accross the ecosystem. I am also the
 author or editor of most of the documentation on
-[py-free-threading.github.io](https://py-free-threading.github.io), which I hope
+[the Python free-threading guide](https://py-free-threading.github.io), which I hope
 will be a lasting community resource.
 
 After shipping [NumPy

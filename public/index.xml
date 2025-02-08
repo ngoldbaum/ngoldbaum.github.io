@@ -29,9 +29,9 @@ Python&lt;/a&gt;. During the course of this project,
 I led the effort to support &lt;a href=&#34;https://docs.python.org/3/whatsnew/3.13.html#whatsnew313-free-threaded-cpython&#34;&gt;free-threaded
 Python&lt;/a&gt;
 in &lt;a href=&#34;https://numpy.org/&#34;&gt;NumPy&lt;/a&gt; and helped add support for free-threaded Python
-to foundational community Python projects accross the ecosystem. I also am the
+to foundational community Python projects accross the ecosystem. I am also the
 author or editor of most of the documentation on
-&lt;a href=&#34;https://py-free-threading.github.io&#34;&gt;py-free-threading.github.io&lt;/a&gt;, which I hope
+&lt;a href=&#34;https://py-free-threading.github.io&#34;&gt;the Python free-threading guide&lt;/a&gt;, which I hope
 will be a lasting community resource.&lt;/p&gt;
 &lt;p&gt;After shipping &lt;a href=&#34;https://numpy.org/devdocs/release/2.1.0-notes.html&#34;&gt;NumPy
 2.1&lt;/a&gt; with support for the
