@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+	<channel>
+		<title>Interview Prep on Nathan Goldbaum</title>
+		<link>https://ngoldbaum.github.io/tags/interview-prep/</link>
+		<description>Recent content in Interview Prep on Nathan Goldbaum</description>
+		<generator>Hugo 0.143.1</generator>
+		<language>en-us</language>
+		<lastBuildDate>Fri, 24 May 2019 15:24:59 -0400</lastBuildDate>
+		<atom:link href="https://ngoldbaum.github.io/tags/interview-prep/index.xml" rel="self" type="application/rss+xml"/>
+		<item>
+			<title>Dynamic Programming</title>
+			<link>https://ngoldbaum.github.io/posts/dynamic-programming/</link>
+			<pubDate>Fri, 24 May 2019 15:24:59 -0400</pubDate>
+			<guid isPermaLink="true">https://ngoldbaum.github.io/posts/dynamic-programming/</guid>
+			<description>&lt;p&gt;Today I&amp;rsquo;m going to be pausing the Mercurial content in favor of material I
+learned today in the algoganza study group here at the Recurse Center. This
+study group is working together to learn content that commonly comes up in job
+interviews and to prepare for the dreaded whiteboard technical
+interview. Today&amp;rsquo;s session focused on a new concept for me, dynamic programming,
+an approach one can use to solve problems that are conceptually amenable to a
+recursive approach, but where the naive recursive approach might be very slow.&lt;/p&gt;
+&lt;h2 id=&#34;a-problem-amenable-to-recursion&#34;&gt;A Problem Amenable to Recursion&lt;/h2&gt;
+&lt;p&gt;To explore these ideas let&amp;rsquo;s think about the Fibonacci sequence. We can
+calculate Fibonacci number &lt;code&gt;$n$&lt;/code&gt; with the formula &lt;code&gt;$F_n = F_{n-1} + F_{n-2}$&lt;/code&gt;. For &lt;code&gt;$n=0$&lt;/code&gt; and &lt;code&gt;$n=1$&lt;/code&gt; we impose &lt;code&gt;$F_0 = 0$&lt;/code&gt; and &lt;code&gt;$F_1 = 1$&lt;/code&gt;. The
+first few numbers in this sequence are &lt;code&gt;$0, 1, 1, 2, 3, 5, 8, 13, \ldots$&lt;/code&gt;. This
+formula is amenable to a recursive implementation because we can calculate new
+numbers in the sequence using only information we collected about previous
+numbers in the sequence.&lt;/p&gt;
+&lt;p&gt;We can write a recursive implementation of the &lt;code&gt;$F_n$&lt;/code&gt; function in Python like
+this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;fib&lt;/span&gt;(n):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; n &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; n &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; fib(n&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;) &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; fib(n&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This works but is &lt;em&gt;extremely&lt;/em&gt; slow:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;In [2]: %time fib(5)
+CPU times: user 20 µs, sys: 1 µs, total: 21 µs
+Wall time: 29.1 µs
+Out[2]: 5
+
+In [3]: %time fib(10)
+CPU times: user 153 µs, sys: 8 µs, total: 161 µs
+Wall time: 98.9 µs
+Out[3]: 55
+
+In [4]: %time fib(15)
+CPU times: user 0 ns, sys: 2.02 ms, total: 2.02 ms
+Wall time: 1.33 ms
+Out[4]: 610
+
+In [5]: %time fib(20)
+CPU times: user 2.81 ms, sys: 179 µs, total: 2.99 ms
+Wall time: 2.48 ms
+Out[5]: 6765
+
+In [6]: %time fib(25)
+CPU times: user 51.1 ms, sys: 0 ns, total: 51.1 ms
+Wall time: 49.6 ms
+Out[6]: 75025
+
+In [7]: %time fib(30)
+CPU times: user 204 ms, sys: 0 ns, total: 204 ms
+Wall time: 202 ms
+Out[7]: 832040
+
+In [8]: %time fib(35)
+CPU times: user 2.03 s, sys: 691 µs, total: 2.03 s
+Wall time: 2.03 s
+Out[8]: 9227465
+
+In [9]: %time fib(40)
+CPU times: user 22.9 s, sys: 3.65 ms, total: 22.9 s
+Wall time: 22.9 s
+Out[9]: 102334155
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The problem is that we are calling the &lt;code&gt;fib&lt;/code&gt; function far more times than we
+actually need to. Rather than calculating, say, &lt;code&gt;fib(15)&lt;/code&gt; only once, we instead
+calculate it over and over again for all numbers greater than 15.&lt;/p&gt;
+&lt;h2 id=&#34;memoization&#34;&gt;Memoization&lt;/h2&gt;
+&lt;p&gt;One way to improve this approach is to use &lt;em&gt;memoization&lt;/em&gt;. That is, we cache the
+output of our &lt;code&gt;fib&lt;/code&gt; function the first time we call the function for a given
+&lt;code&gt;n&lt;/code&gt;.  If we call the function again for the same &lt;code&gt;n&lt;/code&gt;, we use the cached output
+we saved and avoid recursively recomputing all Fibonacci numbers smaller than
+&lt;code&gt;n&lt;/code&gt;. The easiest way to implement memoization in Python is to use a decorator:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;memoize&lt;/span&gt;(f):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    cache &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; {}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;wrapped&lt;/span&gt;(n):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; n &lt;span style=&#34;color:#f92672&#34;&gt;not&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; cache:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            cache[n] &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; f(n)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; cache[n]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; wrapped
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;@memoize&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;fib&lt;/span&gt;(n):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; n &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; n &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; fib(n&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;) &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; fib(n&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Here we&amp;rsquo;ve created a decorator &lt;code&gt;memoize&lt;/code&gt; that stores a dictionary that caches
+the results of the function, using the inputs to the function as the cache
+keys. We then apply the &lt;code&gt;memoize&lt;/code&gt; decorator to the &lt;code&gt;fib&lt;/code&gt; function, which is
+unchanged from above. This implementation is &lt;em&gt;substantially&lt;/em&gt; faster, we&amp;rsquo;re now
+able to calculate &lt;code&gt;$F_{100}$&lt;/code&gt; in less than a millisecond:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;In [14]: %time fib(100)
+CPU times: user 299 µs, sys: 0 ns, total: 299 µs
+Wall time: 316 µs
+Out[14]: 354224848179261915075
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Memoization can be very useful if we don&amp;rsquo;t mind paying the memory cost of
+storing all inputs and outputs to all functions. All we need to do is create a
+cache and save results to the cache. The rest of the algorithm is completely
+unchanged and we still retain all the intuition we developed while thinking
+about the recursive approach.&lt;/p&gt;
+&lt;h2 id=&#34;dynamic-fibonacci&#34;&gt;Dynamic Fibonacci&lt;/h2&gt;
+&lt;p&gt;There is a more optimal way to do this problem, using a dynamic programming
+approach. To see why this might be the case, consider how the recursive and
+memoized approaches we examined already are &lt;em&gt;top-down&lt;/em&gt; approaches. We coded
+things in a very general way such that our implementation doesn&amp;rsquo;t know ahead of
+time how many times the &lt;code&gt;fib&lt;/code&gt; function will get called or when it will
+eventually get called with arguments that trigger the terminating conditions for
+the recursion (e.g. &lt;code&gt;n = 1&lt;/code&gt; and &lt;code&gt;n = 0&lt;/code&gt;). However, we know ahead of time that to
+calculate the 40th Fibonacci number, we are definitely going to need the 0th
+through 39th number. A more clever &lt;em&gt;bottom-up&lt;/em&gt; algorithm takes advantage of this
+knowledge. A dynamic Fibonacci solver looks like this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;fib&lt;/span&gt;(n):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; n &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; n &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    nm1 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    nm2 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; i &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; range(&lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;, n&lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        fibi &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; nm1 &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; nm2
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        nm1 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; nm2
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        nm2 &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; fibi
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; fibi
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This version uses constant memory and runs in &lt;code&gt;$O(n)$&lt;/code&gt; time. It also doesn&amp;rsquo;t use
+the call stack to store temporary variables and is not susceptible to raising
+errors due to running out stack frames (in Python) or overflowing the stack and
+triggering undefined behavior (in an unsafe compiled language like C).&lt;/p&gt;
+&lt;h2 id=&#34;making-change&#34;&gt;Making change&lt;/h2&gt;
+&lt;p&gt;Let&amp;rsquo;s close this out with a discussion of one more problem that is amenable to
+this sort of approach. Here we&amp;rsquo;d like to know how many different ways we can
+make change for a dollar using US currency (that is, using pennies, nickles,
+dimes, quarters, half-dollars, and dollar coins). It may not be obvious that
+this problem is amenable to a recursive approach. One way to see this is to
+realize that one subset of solutions is the set of ways to make change for
+99 cents along with one more penny. Another set is the set of ways to make
+change for 95 cents along with another nickel, 90 cents with a dime, and so
+on. All of these solutions depend on the solution of a smaller version of the
+problem - a classic signal that recursion might be useful. What about the other
+solutions? Well, we know that, for example, there is only one way to take a way
+to make change for 99 cents and make it a way to make change for a dollar: add
+another cent. So that means we&amp;rsquo;ve accounted for all of the ways to make a dollar
+with the set of coins that includes pennies. So the other set of solutions is
+the way to make change for a dollar using all coins &lt;em&gt;but&lt;/em&gt; pennies. Again, we are
+dealing with a smaller problem, another recursive path.&lt;/p&gt;
+&lt;p&gt;Let&amp;rsquo;s take a look at Python code for this recursive algorithm:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;make_change&lt;/span&gt;(amount, denominations):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; len(denominations) &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; amount &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; amount &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    num_with_amount &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; make_change(amount &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt; denominations[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;], denominations)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    num_without_denom &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; make_change(amount, denominations[&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;:])
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; num_with_amount &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; num_without_denom
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The terminating cases might look a little weird. The first, checking the number
+of denominations to consider, handles the case where we&amp;rsquo;re asked to make change
+with no coins at all. There&amp;rsquo;s no way to make change in this case, so the number
+of ways to make change from this branch of the recursive call graph is zero. The
+second case, when we&amp;rsquo;re asked to make change for 0 cents, corresponds to the
+case where we&amp;rsquo;ve made exact change already, so this branch contributes exactly
+one way to make change. Finally, if we&amp;rsquo;re asked to make change for a negative
+amount of currency that means that again this is an invalid way to make change
+for a dollar (the value of the coins goes over a dollar).&lt;/p&gt;
+&lt;p&gt;As with the Fibonacci numbers, this is a top-down approach. What would the
+bottom-up dynamic approach look like? One way to do it is to make use of a table
+that caches the results for simple cases and then builds up more complicated
+cases as we go:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;import&lt;/span&gt; itertools
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;def&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;make_change_dynamic&lt;/span&gt;(amount, denominations):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# Generate all combinations of the given denominations&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# e.g. for a penny and a nickel, this would be just a penny, just a &lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# nickel, and a penny and a nickel&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    combinations &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; []
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; l &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; range(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, len(denominations) &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; x &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; itertools&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;combinations(denominations, l):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            combinations&lt;span style=&#34;color:#f92672&#34;&gt;.&lt;/span&gt;append(x)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# table to cache results&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    TABLE &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; {}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# terminating case for making change for 0 cents&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; c &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; combinations:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        TABLE[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;, c] &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; i &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; range(&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;, amount &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;):
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#75715e&#34;&gt;# terminating case for making change with no money&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        TABLE[i, ()] &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; c &lt;span style=&#34;color:#f92672&#34;&gt;in&lt;/span&gt; combinations:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; i &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt; c[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;] &lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                &lt;span style=&#34;color:#75715e&#34;&gt;# terminating case for making change for negative cents&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                TABLE[i, c] &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#66d9ef&#34;&gt;elif&lt;/span&gt; i &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt; c[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;] &lt;span style=&#34;color:#f92672&#34;&gt;==&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                &lt;span style=&#34;color:#75715e&#34;&gt;# exact change&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                TABLE[i, c] &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#66d9ef&#34;&gt;else&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                TABLE[i, c] &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; TABLE[i &lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt; c[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;], c] &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; TABLE[i, c[&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;:]]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;return&lt;/span&gt; TABLE[amount, denominations]
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;I suspect that there&amp;rsquo;s probably a fancier version that can compute the
+result with constant memory like the Fibonacci case we discussed above.&lt;/p&gt;
+&lt;h2 id=&#34;futher-reading&#34;&gt;Futher Reading&lt;/h2&gt;
+&lt;p&gt;Another blog post diving into some more in-depth theory:
+&lt;a href=&#34;https://blog.racket-lang.org/2012/08/dynamic-programming-versus-memoization.html&#34;&gt;https://blog.racket-lang.org/2012/08/dynamic-programming-versus-memoization.html&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;A set of dynamic programming practice problems:
+&lt;a href=&#34;https://atcoder.jp/contests/dp/tasks&#34;&gt;https://atcoder.jp/contests/dp/tasks&lt;/a&gt;&lt;/p&gt;
+</description>
+		</item>
+	</channel>
+</rss>

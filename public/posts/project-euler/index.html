@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+  <meta charset="utf-8"/>
+  <title>Project Euler | Nathan Goldbaum</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <meta name="description" content="An overview of my solutions to the first 20 project euler problems."/>
+  <meta name="generator" content="Hugo 0.143.1">
+  <link rel="alternate" type="application/rss+xml" href="/index.xml" title="Nathan Goldbaum Feed"/>
+  <link rel="stylesheet" href="/style.14c8ff19b50072be4166d83dec461766751e135f9561937968934a9c0c41c417.css" integrity="sha256-FMj/GbUAcr5BZtg97EYXZnUeE1+VYZN5aJNKnAxBxBc=" crossorigin="anonymous"/>
+  <script defer src="/script.c515b297a254a81ade1515172752b9cd6e495af3db38009536fba14b53f6c7e9.js" integrity="sha256-xRWyl6JUqBreFRUXJ1K5zW5JWvPbOACVNvuhS1P2x+k=" crossorigin="anonymous"></script>
+
+<link rel="stylesheet" href="/custom.css">
+</head>
+<body>
+<div class="pure-g">
+  <div class="pure-u-1-24 pure-u-md-5-24"></div>
+  <div class="pure-u-22-24 pure-u-md-14-24">
+  
+<div class="navigation">
+  <div class="navigation-header">
+    <div class="pure-menu pure-menu-horizontal">
+      <a class="pure-menu-heading pure-menu-link" href="/">
+        Nathan Goldbaum
+      </a>
+    </div>
+  </div>
+  <div class="navigation-content">
+    <div class="pure-menu pure-menu-horizontal">
+      <ul class="pure-menu-list">
+        <li class="pure-menu-item" title="About">
+          <a class="pure-menu-link" href="/about/">About</a>
+        </li>
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/posts">Blog</a>
+        </li>
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/contact">Contact</a>
+        </li>
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/cv.pdf">Résumé</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+  
+<div>
+  <div>
+    <h2 class="post-title">
+      
+      Project Euler
+    </h2>
+    
+
+  </div>
+  <div>
+    <h1 id="the-first-20-project-euler-problems">The first 20 Project Euler problems</h1>
+<p>During my first week here at RC I decided to attend a session led by another
+recurser on <a href="https://projecteuler.net/">Project Euler</a>, an online coding
+challenge based on a series of discrete math problems. The problems are written
+to lend themselves to a computational solution. There are hundreds of problems
+and the problems get increasingly hard past the first 100. While the early
+problems are definitely easier than the later ones, they still take some doing
+to finish and are a great way to quickly work on a bunch of problems to learn a
+new programming language.</p>
+<p>I&rsquo;m getting more and more used to thinking about Rust code in an idiomatic way,
+but I don&rsquo;t think I&rsquo;m comfortable enough to call myself a
+<a href="https://rustacean.net/">rustacean</a> yet. To further my goal of oxidizing my
+brain with rust knowledge, I decided to start working through project euler
+problems sequentially. I&rsquo;ve recently finished the first 20 problems and I though
+I&rsquo;d share the highlights of what I learned about rust along the way.</p>
+<p>If you&rsquo;d like to peruse my solutions, they&rsquo;re all <a href="https://github.com/ngoldbaum/project_euler">on
+GitHub</a>.</p>
+<h2 id="functional-processing-pipelines">Functional processing pipelines</h2>
+<p>I&rsquo;m used to Python, where computation tends to happen in an imperative
+way. Although Python does have <a href="https://docs.python.org/3.7/howto/functional.html">functional programming
+features</a>, real-world code
+I&rsquo;ve seen tends to avoid it or use them sparingly instead of composing an entire
+computation or block of code as a functional data processing pipeline. Guido van
+Rossum is also <a href="https://developers.slashdot.org/story/13/08/25/2115204/interviews-guido-van-rossum-answers-your-questions">of the
+opinion</a>
+that some of these features should be removed from the language and <a href="https://www.artima.com/weblogs/viewpost.jsp?thread=98196">tried to
+remove</a> <code>lambda</code>,
+<code>map</code>, <code>filter</code>, from Python 3 and succeeded in removing <code>reduce</code> as a builtin
+and moving it to <code>functools</code>.</p>
+<p>In Rust it&rsquo;s much more natural to process a collection of things by creating an
+iterator over the collection and then applying transformations to the elements
+of the iterator as needed and, if necessary, doing a reduction step to
+process the transformed elements of the collection. One advantage of this
+approach is that if we&rsquo;re handed an abstract iterator that lazily generates
+data, this approach will avoid needing to hold all the elements of the iterator
+in memory.</p>
+<p><a href="https://projecteuler.net/problem=6">Problem 6</a> asks us to compute the
+difference between the sum of the squares and the square of the sum of the
+natural numbers up to 100. This lends itself to a nice straightforward
+functional solution:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-rust" data-lang="rust"><span style="display:flex;"><span><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> maxnum <span style="color:#f92672">=</span> <span style="color:#ae81ff">100</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> sumsquares: <span style="color:#66d9ef">u64</span> <span style="color:#f92672">=</span> (<span style="color:#ae81ff">1</span><span style="color:#f92672">..</span>maxnum<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>).map(<span style="color:#f92672">|</span>x<span style="color:#f92672">|</span> x<span style="color:#f92672">*</span>x).sum();
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> sum: <span style="color:#66d9ef">u64</span> <span style="color:#f92672">=</span> (<span style="color:#ae81ff">1</span><span style="color:#f92672">..</span>maxnum<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>).sum();
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> squaresum <span style="color:#f92672">=</span> sum<span style="color:#f92672">*</span>sum;
+</span></span><span style="display:flex;"><span>    println!(<span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{}</span><span style="color:#e6db74">&#34;</span>, squaresum <span style="color:#f92672">-</span> sumsquares);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>To me the rust <code>map</code> syntax looked a little strange at first but I&rsquo;m starting to
+get used to it. The <code>|foo|</code> syntax defines a <em>closure</em>. <a href="https://doc.rust-lang.org/rust-by-example/fn/closures.html">Closures in
+rust</a> are a bit like
+python&rsquo;s <code>lambda</code> statement, it lets us name a temporary variable that is valid
+inside the scope of the <code>map</code> function call. In this case it represents a single
+value in the range iterator defined by <code>1..maxnum+1</code>. After mapping the numbers
+to their square, we then sum the values. Since range iterators lazily generate
+data, our solution never needs to hold all of the values of the iterator in
+memory - cool!</p>
+<h2 id="generating-prime-numbers">Generating prime numbers</h2>
+<p>Several of the Project Euler problems require generating large numbers of prime
+numbers quickly. The brute force approach to this is called <a href="https://en.wikipedia.org/wiki/Trial_division">trial
+division</a>. For a natural number
+<code>$n$</code>, we check whether all natural numbers <code>$1 &lt; m &lt; n$</code> have the property <code>$n \mod m \ne 0$</code>. There are some straightforward performance optizations one can
+apply to speed this up. If <code>$n$</code> is divisible by 2 then it can&rsquo;t be prime, so we
+reject it. If it&rsquo;s not divisible by 2 then it can&rsquo;t be divisible by any larger
+even number either, so we can skip all even numbers - a 2x performance
+boost. We can get an even bigger performance improvement for large <code>$n$</code> by
+realizing that one need not check any integer bigger than <code>$\sqrt{n}$</code>, since if
+<code>$n$</code> is divisible by a number bigger than <code>$\sqrt{n}$</code> it must also be
+divisible by a number smaller than <code>$\sqrt{n}$</code>, which we would have already
+checked. We need to go all the way up to <code>$\sqrt{n}$</code> in case <code>$n$</code> is a perfect
+square.</p>
+<p>Another approach is to use the <a href="https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes">Sieve of
+Eratosthenes</a>, an ancient
+algorithm for generating all primes up to a limit. Start with a list of all the
+natural numbers from two to $n$ and then for each number, find all the multiples
+of $n$ in the list and mark them as not prime. Once all the numbers in the list
+up to <code>$n/2$</code> have been tested, all the numbers that have not been discarded
+must be prime. For Problem #7 I ended up coding this up like so:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-rust" data-lang="rust"><span style="display:flex;"><span><span style="color:#66d9ef">static</span> <span style="color:#66d9ef">MAX</span>: <span style="color:#66d9ef">usize</span> <span style="color:#f92672">=</span> <span style="color:#ae81ff">1_000_000</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">sieve</span>(n: <span style="color:#66d9ef">usize</span>) -&gt; <span style="color:#66d9ef">usize</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> data: Vec<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">usize</span><span style="color:#f92672">&gt;</span> <span style="color:#f92672">=</span> (<span style="color:#ae81ff">0</span><span style="color:#f92672">..</span><span style="color:#66d9ef">MAX</span>).collect();
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> isprime: Vec<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">bool</span><span style="color:#f92672">&gt;</span> <span style="color:#f92672">=</span> vec![<span style="color:#66d9ef">true</span>; data.len()];
+</span></span><span style="display:flex;"><span>    isprime[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">=</span> <span style="color:#66d9ef">false</span>;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> (i, d) <span style="color:#66d9ef">in</span> data.iter().enumerate() {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">let</span> offset <span style="color:#f92672">=</span> <span style="color:#f92672">*</span>d;
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">!</span>isprime[i] <span style="color:#f92672">||</span> offset <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span> {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">continue</span>
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> j <span style="color:#66d9ef">in</span> ((i<span style="color:#f92672">+</span>offset)<span style="color:#f92672">..</span>isprime.len()).step_by(offset) {
+</span></span><span style="display:flex;"><span>            isprime[j <span style="color:#66d9ef">as</span> <span style="color:#66d9ef">usize</span>] <span style="color:#f92672">=</span> <span style="color:#66d9ef">false</span>
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> primes <span style="color:#f92672">=</span> isprime.iter().enumerate().fold(vec![], <span style="color:#f92672">|</span><span style="color:#66d9ef">mut</span> acc, (index, value)<span style="color:#f92672">|</span> {
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">*</span>value {
+</span></span><span style="display:flex;"><span>            acc.push(index)
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        acc
+</span></span><span style="display:flex;"><span>    });
+</span></span><span style="display:flex;"><span>    primes[n]
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This approach uses a <code>Vec&lt;usize&gt;</code> called <code>data</code> to contain the prime numbers and
+a <code>Vec&lt;bool&gt;</code> to contain the list of numbers that are prime in <code>data</code>. We make
+use of <code>enumerate</code> in two places to generate an indexed iterator over a list of
+numbers, a pattern I like to use from Python where one array indexes another
+array. It&rsquo;s nice how the approaches I like to use in Python tend to be adaptable
+in Rust despite the languages being very different.</p>
+<p>It turns out that Problem 10 also needs a large number of prime numbers, so we
+can reuse this function with a small adaptation there.</p>
+<h2 id="the-num-crate-and-the-bigint-type">The <code>num</code> crate and the <code>BigInt</code> type</h2>
+<p>Many of the problems in Project Euler generate integers that cannot be
+represented using the integer data types built into rust. In Python, integers
+transparently get promoted from machine integers to arbitrary-precision integers
+(see <a href="https://www.python.org/dev/peps/pep-0237/">PEP 237</a> for more details about
+python integers) transparently, so we don&rsquo;t need to worry about the
+distinction. Rust is a lower-level language and wants you to carefully consider
+the memory cost of an operation, so it won&rsquo;t automatically convert integers when
+they overflow. However, in debug mode, <a href="https://github.com/nox/rust-rfcs/blob/master/text/0560-integer-overflow.md">integer overflow does trigger a
+panic</a>!
+I find this delightful compared with my experiences in other low-level languages
+like C or C++:</p>
+<p>In this way we know immediately when the builtin integer types are no longer
+sufficient and we need to switch to an arbitrary-precision integer arithmetic
+library.</p>
+<p>Currently, the most popular library for this sort of thing on
+<a href="https://crates.io">crates.io</a> is the <a href="https://crates.io/crates/num"><code>num</code></a>
+crate, in particular the <code>num::bigint::BigInt</code> type. Rather than coercing
+integers automatically to be instances of <code>BigInt</code> by overriding the arithmetic
+operators as a Python library probably would do, the approach here is to force
+users to specify which numbers exactly are <code>BigInt</code> instances by explicitly
+converting.</p>
+<p>I used <code>num</code> for 5 of the first 20 problems, in problems 8, 13, 15, 16,
+and 20. The usage from Problem 20, which asks to compute the sum of the digits
+of <code>$100!$</code>, is probably the most readable:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-rust" data-lang="rust"><span style="display:flex;"><span><span style="color:#66d9ef">use</span> num::bigint::{BigInt, ToBigInt};
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">use</span> num::traits::{One, Zero};
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> num <span style="color:#f92672">=</span> <span style="color:#ae81ff">100.</span>to_bigint().unwrap();
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> ret: <span style="color:#a6e22e">BigInt</span> <span style="color:#f92672">=</span> One::one();
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> zero: <span style="color:#a6e22e">BigInt</span> <span style="color:#f92672">=</span> Zero::zero();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span> num <span style="color:#f92672">!=</span> zero {
+</span></span><span style="display:flex;"><span>        ret <span style="color:#f92672">*=</span> <span style="color:#f92672">&amp;</span>num;
+</span></span><span style="display:flex;"><span>        num <span style="color:#f92672">-=</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> digits <span style="color:#f92672">=</span> format!(<span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{}</span><span style="color:#e6db74">&#34;</span>, ret)
+</span></span><span style="display:flex;"><span>        .chars()
+</span></span><span style="display:flex;"><span>        .map(<span style="color:#f92672">|</span>c<span style="color:#f92672">|</span> c.to_digit(<span style="color:#ae81ff">10</span>).expect(<span style="color:#e6db74">&#34;not a digit!&#34;</span>))
+</span></span><span style="display:flex;"><span>        .collect::<span style="color:#f92672">&lt;</span>Vec<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">u32</span><span style="color:#f92672">&gt;&gt;</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    println!(<span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{}</span><span style="color:#e6db74">&#34;</span>, digits.iter().sum::<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">u32</span><span style="color:#f92672">&gt;</span>());
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>First, we convert 100 to a <code>BigInt</code> using the <code>to_bigint</code> method that the
+<code>ToBigInt</code> trait defines on rust&rsquo;s buitin integer types. Adding new features to
+standard library types like this would be very strange in Python, but in rust
+it&rsquo;s very natural. Since we explicitly bring the <code>ToBigInt</code> trait into scope
+it&rsquo;s still explicit, however care must be taken to understand the side effects
+of bringing traits into scope.</p>
+<p>Next we define bigints to represent one and zero. The <code>num</code> package helpfully
+provides traits to generate <code>BigInt</code> instances directly. From there the math
+looks more or less identical to how we&rsquo;d write it for a builtin type, however
+with a <code>BigInt</code> this will not overflow. One difference is that the
+multiplication step needs to borrow the data in the <code>BigInt</code> with the <code>&amp;</code>
+operator:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-rust" data-lang="rust"><span style="display:flex;"><span><span style="color:#66d9ef">while</span> num <span style="color:#f92672">!=</span> zero {
+</span></span><span style="display:flex;"><span>    ret <span style="color:#f92672">*=</span> <span style="color:#f92672">&amp;</span>num;
+</span></span><span style="display:flex;"><span>    num <span style="color:#f92672">-=</span> <span style="color:#ae81ff">1</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This borrow isn&rsquo;t necessary for machine integers because they implement the Copy
+trait and can be cheaply copied. A <code>BigInt</code> is a wrapper for the byte buffer
+that could be arbitrarily long and stores that data on the heap, so we need to
+explicitly borrow or copy whenever we use the value.</p>
+<p>Finally we format the bigint as a string to get a base 10 representation,
+convert the digits of the string to integers, and sum the digits.</p>
+<h2 id="problem-11-largest-product-of-four-numbers-in-a-grid">Problem 11: Largest product of four numbers in a grid</h2>
+<p>In <a href="https://projecteuler.net/problem=11">this problem</a> we are given a 20x20 grid
+of natural numbers and asked to find the sequence of 4 neighboring numbers (in
+any direction, including along diagonals) that has the largest product.</p>
+<p>This problem lends itself to using a 2D array data structure to store the grid
+of numbers. Because I like <code>NumPy</code>, I decided to use the
+<a href="https://crates.io/crates/ndarray">ndarray</a> crate, which provides a ND array
+data structure that acts a lot like a NumPy array.</p>
+<p>To generate the array, I first read the data into a Vec containing Vecs of <code>u64</code>
+entries:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-rust" data-lang="rust"><span style="display:flex;"><span><span style="color:#66d9ef">let</span> rows <span style="color:#f92672">=</span> contents.split(<span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>).collect::<span style="color:#f92672">&lt;</span>Vec<span style="color:#f92672">&lt;&amp;</span><span style="color:#66d9ef">str</span><span style="color:#f92672">&gt;&gt;</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">let</span> rows <span style="color:#f92672">=</span> rows
+</span></span><span style="display:flex;"><span>    .iter()
+</span></span><span style="display:flex;"><span>    .map(<span style="color:#f92672">|</span>r<span style="color:#f92672">|</span> {
+</span></span><span style="display:flex;"><span>        r.split(<span style="color:#e6db74">&#34; &#34;</span>)
+</span></span><span style="display:flex;"><span>            .filter_map(<span style="color:#f92672">|</span>d<span style="color:#f92672">|</span> d.parse::<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">u64</span><span style="color:#f92672">&gt;</span>().ok())
+</span></span><span style="display:flex;"><span>            .collect::<span style="color:#f92672">&lt;</span>Vec<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">u64</span><span style="color:#f92672">&gt;&gt;</span>()
+</span></span><span style="display:flex;"><span>    })
+</span></span><span style="display:flex;"><span>.collect::<span style="color:#f92672">&lt;</span>Vec<span style="color:#f92672">&lt;</span>Vec<span style="color:#f92672">&lt;</span><span style="color:#66d9ef">u64</span><span style="color:#f92672">&gt;&gt;&gt;</span>();
+</span></span></code></pre></div><p>A tricky bit here is my usage of
+<a href="https://doc.rust-lang.org/std/result/enum.Result.html#method.ok"><code>ok()</code></a> to
+convert a <code>Result</code> into an <code>Option</code>, which allows me to use <code>filter_map</code> and
+avoid using <code>unwrap</code>. Since I know <em>a priori</em> that the input table doesn&rsquo;t have
+blanks this is mostly a semantic dance and I could probably get away with using
+<code>unwrap</code>, but it&rsquo;s nice to know of ways to generate code that provably cannot
+panic and crash.</p>
+<p>Next I generate 2D 20x20 array and read the data into it:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-rust" data-lang="rust"><span style="display:flex;"><span><span style="color:#66d9ef">let</span> nrows <span style="color:#f92672">=</span> rows.len();
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">let</span> ncols <span style="color:#f92672">=</span> rows[<span style="color:#ae81ff">0</span>].len();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> array <span style="color:#f92672">=</span> ndarray::Array::zeros((nrows, ncols));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> i <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">..</span>nrows {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> j <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">..</span>ncols {
+</span></span><span style="display:flex;"><span>        array[(i, j)] <span style="color:#f92672">=</span> rows[i][j];
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Now to actually check sequences, I defined a wrapper type for a 4-tuple and gave
+it a <code>prod</code> method to calculate the product of the numbers in the sequence:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-rust" data-lang="rust"><span style="display:flex;"><span><span style="color:#66d9ef">struct</span> <span style="color:#a6e22e">Sequence</span>((<span style="color:#66d9ef">u64</span>, <span style="color:#66d9ef">u64</span>, <span style="color:#66d9ef">u64</span>, <span style="color:#66d9ef">u64</span>));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">impl</span> Sequence {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">prod</span>(<span style="color:#f92672">&amp;</span>self) -&gt; <span style="color:#66d9ef">u64</span> {
+</span></span><span style="display:flex;"><span>        (self.<span style="color:#ae81ff">0</span>).<span style="color:#ae81ff">0</span> <span style="color:#f92672">*</span> (self.<span style="color:#ae81ff">0</span>).<span style="color:#ae81ff">1</span> <span style="color:#f92672">*</span> (self.<span style="color:#ae81ff">0</span>).<span style="color:#ae81ff">2</span> <span style="color:#f92672">*</span> (self.<span style="color:#ae81ff">0</span>).<span style="color:#ae81ff">3</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>And I wrote a <code>check</code> function that checks to make sure if the product of the
+sequence is greater than a number:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-rust" data-lang="rust"><span style="display:flex;"><span><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">check</span>(s: Option<span style="color:#f92672">&lt;</span>Sequence<span style="color:#f92672">&gt;</span>, largeprod: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">mut</span> <span style="color:#66d9ef">u64</span>) {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">match</span> s {
+</span></span><span style="display:flex;"><span>        Some(x) <span style="color:#f92672">=&gt;</span> {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">let</span> product <span style="color:#f92672">=</span> x.prod();
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> product <span style="color:#f92672">&gt;</span> <span style="color:#f92672">*</span>largeprod {
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">*</span>largeprod <span style="color:#f92672">=</span> product
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>        None <span style="color:#f92672">=&gt;</span> {}
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Note how this function accepts an <code>Option&lt;Sequence&gt;</code>. This lets us transparently
+handle cases where there isn&rsquo;t a valid sequence and ignore them without
+carefully designing our code to avoid testing places near the edge of the array
+where we cannot generate a sequence 4 numbers long.</p>
+<p>Finally we need code that generates sequences that go to the right, up, rising
+diagonally, or falling diagonally from a starting location defined by the tuple
+of indices <code>(i, j)</code>. Here&rsquo;s the code to generate horizontal sequences, the other
+types are analogous:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-rust" data-lang="rust"><span style="display:flex;"><span><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">horizontal_sequence</span>(i: <span style="color:#66d9ef">usize</span>, j: <span style="color:#66d9ef">usize</span>, m: <span style="color:#66d9ef">usize</span>, arr: <span style="color:#66d9ef">&amp;</span><span style="color:#a6e22e">Array</span><span style="color:#f92672">&lt;</span><span style="color:#66d9ef">u64</span>, Ix2<span style="color:#f92672">&gt;</span>) -&gt; Option<span style="color:#f92672">&lt;</span>Sequence<span style="color:#f92672">&gt;</span> {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">match</span> (i, j) {
+</span></span><span style="display:flex;"><span>        (i, j) <span style="color:#66d9ef">if</span> i <span style="color:#f92672">+</span> <span style="color:#ae81ff">3</span> <span style="color:#f92672">&gt;=</span> m <span style="color:#f92672">||</span> j <span style="color:#f92672">+</span> <span style="color:#ae81ff">3</span> <span style="color:#f92672">&gt;=</span> m <span style="color:#f92672">=&gt;</span> None,
+</span></span><span style="display:flex;"><span>        _ <span style="color:#f92672">=&gt;</span> Some(Sequence((
+</span></span><span style="display:flex;"><span>            arr[(i, j)],
+</span></span><span style="display:flex;"><span>            arr[(i <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>, j)],
+</span></span><span style="display:flex;"><span>            arr[(i <span style="color:#f92672">+</span> <span style="color:#ae81ff">2</span>, j)],
+</span></span><span style="display:flex;"><span>            arr[(i <span style="color:#f92672">+</span> <span style="color:#ae81ff">3</span>, j)],
+</span></span><span style="display:flex;"><span>        ))),
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>If the sequence goes off the edge of the array, we return <code>None</code>, otherwise we
+return a <code>Sequence</code> to test.</p>
+<p>Finally, we check all the possible sequences:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-rust" data-lang="rust"><span style="display:flex;"><span><span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> largeprod <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">for</span> i <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">..</span>nrows {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> j <span style="color:#66d9ef">in</span> <span style="color:#ae81ff">0</span><span style="color:#f92672">..</span>ncols {
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e">// horizontal sequences
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>        check(horizontal_sequence(i, j, nrows, <span style="color:#f92672">&amp;</span>array), <span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> largeprod);
+</span></span><span style="display:flex;"><span>        check(vertical_sequence(i, j, nrows, <span style="color:#f92672">&amp;</span>array), <span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> largeprod);
+</span></span><span style="display:flex;"><span>        check(
+</span></span><span style="display:flex;"><span>            rising_diagonal_sequence(i, j, nrows, <span style="color:#f92672">&amp;</span>array),
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> largeprod,
+</span></span><span style="display:flex;"><span>        );
+</span></span><span style="display:flex;"><span>        check(
+</span></span><span style="display:flex;"><span>            falling_diagonal_sequence(i, j, nrows, <span style="color:#f92672">&amp;</span>array),
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&amp;</span><span style="color:#66d9ef">mut</span> largeprod,
+</span></span><span style="display:flex;"><span>        );
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>println!(<span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{}</span><span style="color:#e6db74">&#34;</span>, largeprod);
+</span></span></code></pre></div><p>The slightly unsightly formatting here is generated for me automatically by
+<code>rustfmt</code>. Sometimes I disagree with it but it&rsquo;s better in my opinion not to
+fight and just live with the standard automatic code formatting for the sake of
+sanity.</p>
+<p>This is an example of <a href="https://ngoldbaum.github.io/posts/dynamic-programming/">dynamic
+programming</a>, where we
+come up with a clever way of exhaustively but efficiently testing all possible
+cases without repeating work.</p>
+<h2 id="problem-17-converting-numbers-to-english">Problem 17: Converting Numbers to English</h2>
+<p>In <a href="https://projecteuler.net/problem=17">this problem</a> we&rsquo;re asked to generate
+English versions of all of the natural numbers up to 1000 and then count how
+many non-hyphen and non-whitespace characters are in all of the numbers.</p>
+<p>I found it most natural in rust to use a <code>match</code> statement:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-rust" data-lang="rust"><span style="display:flex;"><span><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">englishify</span>(i: <span style="color:#66d9ef">usize</span>) -&gt; String {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> ret <span style="color:#f92672">=</span> <span style="color:#66d9ef">match</span> i {
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">1</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;one&#34;</span>.to_owned(),
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">2</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;two&#34;</span>.to_owned(),
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">3</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;three&#34;</span>.to_owned(),
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">4</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;four&#34;</span>.to_owned(),
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">5</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;five&#34;</span>.to_owned(),
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">6</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;six&#34;</span>.to_owned(),
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">7</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;seven&#34;</span>.to_owned(),
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">8</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;eight&#34;</span>.to_owned(),
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">9</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;nine&#34;</span>.to_owned(),
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">10</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;ten&#34;</span>.to_owned(),
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">11</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;eleven&#34;</span>.to_owned(),
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">12</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;twelve&#34;</span>.to_owned(),
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">13</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;thirteen&#34;</span>.to_owned(),
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">14</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;fourteen&#34;</span>.to_owned(),
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">15</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;fifteen&#34;</span>.to_owned(),
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">16</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;sixteen&#34;</span>.to_owned(),
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">17</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;seventeen&#34;</span>.to_owned(),
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">18</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;eighteen&#34;</span>.to_owned(),
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">19</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;nineteen&#34;</span>.to_owned(),
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">20</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;twenty&#34;</span>.to_owned(),
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">30</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;thirty&#34;</span>.to_owned(),
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">40</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;forty&#34;</span>.to_owned(),
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">50</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;fifty&#34;</span>.to_owned(),
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">60</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;sixty&#34;</span>.to_owned(),
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">70</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;seventy&#34;</span>.to_owned(),
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">80</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;eighty&#34;</span>.to_owned(),
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">90</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;ninety&#34;</span>.to_owned(),
+</span></span><span style="display:flex;"><span>        <span style="color:#ae81ff">1000</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;one thousand&#34;</span>.to_owned(),
+</span></span><span style="display:flex;"><span>        _ <span style="color:#f92672">=&gt;</span> {
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">let</span> hundreds <span style="color:#f92672">=</span> i <span style="color:#f92672">/</span> <span style="color:#ae81ff">100</span>;
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">let</span> tens <span style="color:#f92672">=</span> (i <span style="color:#f92672">-</span> hundreds <span style="color:#f92672">*</span> <span style="color:#ae81ff">100</span>) <span style="color:#f92672">/</span> <span style="color:#ae81ff">10</span>;
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">let</span> ones <span style="color:#f92672">=</span> i <span style="color:#f92672">-</span> hundreds <span style="color:#f92672">*</span> <span style="color:#ae81ff">100</span> <span style="color:#f92672">-</span> tens <span style="color:#f92672">*</span> <span style="color:#ae81ff">10</span>;
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">let</span> <span style="color:#66d9ef">mut</span> ret: String <span style="color:#f92672">=</span> String::new();
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> hundreds <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span> {
+</span></span><span style="display:flex;"><span>                ret <span style="color:#f92672">+=</span> <span style="color:#f92672">&amp;</span>(englishify(hundreds) <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34; hundred&#34;</span>);
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> tens <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">2</span> {
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">let</span> remainder <span style="color:#f92672">=</span> i <span style="color:#f92672">-</span> hundreds <span style="color:#f92672">*</span> <span style="color:#ae81ff">100</span>;
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">if</span> remainder <span style="color:#f92672">!=</span> <span style="color:#ae81ff">0</span> {
+</span></span><span style="display:flex;"><span>                    ret <span style="color:#f92672">+=</span> <span style="color:#f92672">&amp;</span>(<span style="color:#e6db74">&#34; and &#34;</span>.to_owned() <span style="color:#f92672">+</span> <span style="color:#f92672">&amp;</span>englishify(i <span style="color:#f92672">-</span> hundreds <span style="color:#f92672">*</span> <span style="color:#ae81ff">100</span>));
+</span></span><span style="display:flex;"><span>                }
+</span></span><span style="display:flex;"><span>            } <span style="color:#66d9ef">else</span> {
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">if</span> hundreds <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span> {
+</span></span><span style="display:flex;"><span>                    ret <span style="color:#f92672">+=</span> <span style="color:#e6db74">&#34; and &#34;</span>;
+</span></span><span style="display:flex;"><span>                }
+</span></span><span style="display:flex;"><span>                ret <span style="color:#f92672">+=</span> <span style="color:#f92672">&amp;</span>englishify(tens <span style="color:#f92672">*</span> <span style="color:#ae81ff">10</span>);
+</span></span><span style="display:flex;"><span>                <span style="color:#66d9ef">if</span> ones <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span> {
+</span></span><span style="display:flex;"><span>                    ret <span style="color:#f92672">+=</span> <span style="color:#f92672">&amp;</span>(<span style="color:#e6db74">&#34;-&#34;</span>.to_owned() <span style="color:#f92672">+</span> <span style="color:#f92672">&amp;</span>englishify(ones))
+</span></span><span style="display:flex;"><span>                }
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>            ret
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    };
+</span></span><span style="display:flex;"><span>    ret
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>For all of the numbers whose English spellings cannot be generated
+algorithmically, we have special cases in the match statement. For all other
+cases, we generate the phrase algorithmically by considering the hundreds, tens,
+and ones digits of the number and calling <code>englishify</code> recursively.</p>
+<p>The usage of <code>to_owned()</code> in many of the match cases is a little ugly, but this
+way it&rsquo;s clear that the return value of <code>englishify</code> owns the data for the
+string. I think it might also be possible to store references to <code>'static &amp;[str]</code> instances and then build the result by dereferencing the references, but
+that seemed more complicated than this approach, even if there&rsquo;s more copying
+happening.</p>
+<p>With this function, calculating the result is a straightforward functional
+processing pipeline on the range of numbers between one and 1000:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-rust" data-lang="rust"><span style="display:flex;"><span><span style="color:#66d9ef">fn</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> numbers <span style="color:#f92672">=</span> (<span style="color:#ae81ff">1</span><span style="color:#f92672">..</span><span style="color:#ae81ff">1001</span>)
+</span></span><span style="display:flex;"><span>        .map(<span style="color:#f92672">|</span>n<span style="color:#f92672">|</span> englishify(n).replace(<span style="color:#e6db74">&#34; &#34;</span>, <span style="color:#e6db74">&#34;&#34;</span>).replace(<span style="color:#e6db74">&#34;-&#34;</span>, <span style="color:#e6db74">&#34;&#34;</span>))
+</span></span><span style="display:flex;"><span>        .collect::<span style="color:#f92672">&lt;</span>Vec<span style="color:#f92672">&lt;</span>String<span style="color:#f92672">&gt;&gt;</span>();
+</span></span><span style="display:flex;"><span>    dbg!(<span style="color:#f92672">&amp;</span>numbers);
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">let</span> nchars <span style="color:#f92672">=</span> numbers.iter().fold(<span style="color:#ae81ff">0</span>, <span style="color:#f92672">|</span>acc, x<span style="color:#f92672">|</span> acc <span style="color:#f92672">+</span> x.len());
+</span></span><span style="display:flex;"><span>    println!(<span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{}</span><span style="color:#e6db74">&#34;</span>, nchars);
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Here we made use of the <code>fold</code> function, which allows us to define custom
+accumulation logic, although we could have done the same thing with a <code>map(|x| x.len()).sum()</code>.</p>
+<h2 id="more-project-euler">More Project Euler?</h2>
+<p>From here on I think I&rsquo;m going to be a bit more sparing in my problem selection
+and not try to exhaustively do them all. Hopefully I&rsquo;ll have some more blog
+posts about Project Euler problems as I run into particularly interesting ones
+or ones that teach me something new about rust.</p>
+
+  </div>
+</div>
+  <div class="footer">
+  <div class="pure-menu pure-menu-horizontal">
+    <ul class="pure-menu-list">
+      <li class="pure-menu-item fix-cursor-pointer" title="Go to top">
+        <a class="pure-menu-link" id="btn-gototop">
+          <span class="fix-placement-up">&#x21e7;&#xfe0e;</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
+<script type="text/javascript" async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+  });
+  MathJax.Hub.Queue(function() {
+    
+    
+    
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i = 0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+
+  MathJax.Hub.Config({
+  
+  TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+</script>
+
+<script>
+  function setElementsClass(selector, value) {
+    Array.prototype.forEach.call(
+      document.querySelectorAll(selector),
+      function(elem) { elem.className = value; }
+    );
+  }
+
+  setElementsClass('img', 'pure-img');
+  setElementsClass('table', 'pure-table');
+
+  function onResize() {
+      Array.prototype.forEach.call(
+        [{
+          selector: '.pure-menu',
+          hi: 'pure-menu pure-menu-horizontal',
+          lo: 'pure-menu'
+        }, {
+          selector: '.navigation-header-subtitle',
+          hi: 'pure-menu-list navigation-header-subtitle pull-end',
+          lo: 'pure-menu-list navigation-header-subtitle'
+        }, {
+          selector: '.navigation-header',
+          hi: 'navigation-header clearfix',
+          lo: 'navigation-header'
+        }],
+        function(elem) {
+          setElementsClass(
+            elem.selector,
+            document.documentElement.clientWidth >= 768 ? elem.hi : elem.lo
+          );
+        }
+      );
+  }
+  onResize();
+  window.addEventListener('resize', onResize);
+
+  document.getElementById('btn-gototop').addEventListener('click', function() {
+    function scroll() {
+      if (window.pageYOffset > 0) { setTimeout(scroll, 8); }
+      window.scroll(0, window.pageYOffset - 128);
+    }
+    scroll();
+  });
+</script>
+
+  </div>
+  <div class="pure-u-1-24 pure-u-md-5-24"></div>
+</div>
+</body>
+</html>

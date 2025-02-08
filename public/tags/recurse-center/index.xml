@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+	<channel>
+		<title>Recurse Center on Nathan Goldbaum</title>
+		<link>https://ngoldbaum.github.io/tags/recurse-center/</link>
+		<description>Recent content in Recurse Center on Nathan Goldbaum</description>
+		<generator>Hugo 0.143.1</generator>
+		<language>en-us</language>
+		<lastBuildDate>Mon, 20 May 2019 17:15:33 -0400</lastBuildDate>
+		<atom:link href="https://ngoldbaum.github.io/tags/recurse-center/index.xml" rel="self" type="application/rss+xml"/>
+		<item>
+			<title>What this blog is for</title>
+			<link>https://ngoldbaum.github.io/posts/my-first-post/</link>
+			<pubDate>Mon, 20 May 2019 17:15:33 -0400</pubDate>
+			<guid isPermaLink="true">https://ngoldbaum.github.io/posts/my-first-post/</guid>
+			<description>&lt;p&gt;Hello from my second day at &lt;a href=&#34;https://recurse.com&#34;&gt;the recurse center&lt;/a&gt;. I&amp;rsquo;ll be
+at RC for the next 12 weeks working on programming-focused projects, &lt;a href=&#34;https://www.recurse.com/manual#sec-pairing&#34;&gt;pair
+programming&lt;/a&gt;, job-hunting, preparing
+for interviews, and exploring and enjoying Brooklyn and the rest of NYC. I&amp;rsquo;ll be
+using this blog to keep notes on the projects I&amp;rsquo;ll be working on and to share
+more generally with the rest of the world. Hopefully it will also keep me honest
+and on-task.&lt;/p&gt;
+&lt;p&gt;Day one mostly consisted of orientation and getting-to-know-you time. In the
+afternoon I spent time getting my new XPS 13 developer edition laptop set up and
+customized they way I like for development. This is my first time using desktop
+linux in about a decade and it&amp;rsquo;s taking some getting used to, but thankfully the
+XPS 13 seems to not have any annoying hardware issues or buggy drivers. I also
+got the bare bones template for this blog set up using
+&lt;a href=&#34;https://gohugo.io/&#34;&gt;Hugo&lt;/a&gt; and GitHub pages.&lt;/p&gt;
+&lt;p&gt;Today I&amp;rsquo;ll be starting on the main project I&amp;rsquo;m planning to work on: a deep dive
+into the &lt;a href=&#34;https://www.mercurial-scm.org/&#34;&gt;Mercurial version control system&lt;/a&gt;.&lt;/p&gt;
+&lt;h2 id=&#34;why-mercurial&#34;&gt;Why Mercurial?&lt;/h2&gt;
+&lt;p&gt;I used to use Mercurial a bunch in the context of development for
+&lt;a href=&#34;https://yt-project.org&#34;&gt;yt&lt;/a&gt; and &lt;a href=&#34;https://enzo-project.org&#34;&gt;enzo&lt;/a&gt;
+development. In the past few years both projects switched from Mercurial to
+git. This reflects less on the quality of Mercurial as a software project and
+more on the status of the ecosystem around Mercurial. Git has GitHub, GitLab,
+and a plethora of other free tools and services that never took shape around
+Mercurial. While Atlassian&amp;rsquo;s Bitbucket does support Mercurial, it&amp;rsquo;s clear that
+development time is not currently focused on improving things for Mercurial
+users. While recently the &lt;a href=&#34;https://sourcehut.org/&#34;&gt;sourcehut&lt;/a&gt; project added
+Mercurial support, the ecosystem around hg is still very barebones. This works
+for large companies that use hg like Facebook because they can create a custom
+environment and code-hosting solution that works for their systems, but open
+source projects that make use of Mercurial will have trouble attracting
+contributors due to unfamiliarity with the tooling around the version control
+system.&lt;/p&gt;
+&lt;p&gt;In my opinion, this state of things is a shame since Mercurial has a lot of
+advantages over Git. Just to take one example, by far my favorite feature of
+Mercurial is its consistent and simple user experience. One clear example is how
+&lt;code&gt;git checkout&lt;/code&gt; does completely different things in different contexts. If I want
+to switch to an existing branch, that&amp;rsquo;s &lt;code&gt;git checkout &amp;lt;branch&amp;gt;&lt;/code&gt;. If I want to
+create a new branch, that&amp;rsquo;s &lt;code&gt;git checkout -b&lt;/code&gt;. If I want to change the content
+of a file in my working directly to reflect the content in the current branch,
+that&amp;rsquo;s &lt;code&gt;git checkout &amp;lt;path&amp;gt;&lt;/code&gt;. These are all completely separate operations. With
+Mercurial, these operations would be &lt;code&gt;hg update &amp;lt;branch&amp;gt;&lt;/code&gt;,&lt;code&gt;hg branch &amp;lt;branch&amp;gt;&lt;/code&gt;,
+and &lt;code&gt;hg revert &amp;lt;path&amp;gt;&lt;/code&gt;. Another good exmaple of this is &lt;code&gt;git rebase&lt;/code&gt;, which
+encompasses many different kinds of history-editing operations that are handled
+in Mercurial by several different commands:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;rebase&lt;/code&gt;
+handles the case of moving commits from one branch to another&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;histedit&lt;/code&gt;
+Interactively rewriting history (e.g. &lt;code&gt;git rebase -i&lt;/code&gt; except with an awesome
+curses interface).&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;fold&lt;/code&gt;
+Collapse several commits into a single commit.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;split&lt;/code&gt;
+Split a single commit into many commits.&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;uncommit&lt;/code&gt;
+Undoes a commit leaving the changes behind in the working directory.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Note that some of these commands are provided by the &lt;a href=&#34;https://www.mercurial-scm.org/wiki/EvolveExtension&#34;&gt;evolve
+extension&lt;/a&gt; which enables
+support for advanced history-editing workflows.&lt;/p&gt;
+&lt;p&gt;Mercurial feels like a good fit for a deep dive at the recurse center for social
+reasons as well.&lt;/p&gt;
+&lt;h3 id=&#34;lots-of-data-structures-and-algorithms-to-explore&#34;&gt;Lots of data structures and algorithms to explore&lt;/h3&gt;
+&lt;p&gt;For each revision in the history of a codebase, Mercurial must be able to
+efficient reconstruct the state of the code at that revision, store the changes
+to the code made by that revision, and index it in a way that makes it easy to
+search for information related to that commit in a number of different ways. To
+be able to parse the data output by Mercurial I&amp;rsquo;ll need to understand these
+design constraints and reimplement some of the algorithms used by Mercurial on
+my own. This will allow me to learn about &lt;a href=&#34;https://en.wikipedia.org/wiki/Merkle_tree&#34;&gt;Merkle
+trees&lt;/a&gt;, the &lt;a href=&#34;https://www.mercurial-scm.org/wiki/Presentations?action=AttachFile&amp;amp;do=view&amp;amp;target=ols-mercurial-paper.pdf&#34;&gt;revlog data storage
+scheme&lt;/a&gt;
+implemented by Mercurial, and algorithms for merging and diffing text.&lt;/p&gt;
+&lt;h3 id=&#34;friendly-community&#34;&gt;Friendly community&lt;/h3&gt;
+&lt;p&gt;I&amp;rsquo;ve &lt;a href=&#34;https://www.mercurial-scm.org/repo/hg/log?rev=author%28Goldbaum%29&#34;&gt;participated in Mercurial
+development&lt;/a&gt;
+in the past and came away very happy with the experience. Development happens
+via a mailing list or via &lt;a href=&#34;https://www.phacility.com/phabricator/&#34;&gt;phabricator&lt;/a&gt;
+as well as on mailing lists and a relatively active &lt;a href=&#34;https://www.mercurial-scm.org/wiki/IRC&#34;&gt;IRC channel on
+freenode&lt;/a&gt;. In addition one of the
+maintainers has agreed to answer questions from me in exchange for me sending in
+patches to clarify and expand on the documentation for Mercurial&amp;rsquo;s internals as
+needed. Basically, I feel comfortable in my ability to access experts to get my
+questions answered in a reasonable time frame as they come up.&lt;/p&gt;
+&lt;h3 id=&#34;a-large-thoughtfully-structured-python-codebase&#34;&gt;A large, thoughtfully structured python codebase.&lt;/h3&gt;
+&lt;p&gt;Mercurial is one of the largest and oldest continuously developed open source
+Python codebases in existence. This means that the quality of the code tends to
+be high, enforced by rigorous line-by-line code review of every commit. That&amp;rsquo;s
+not to say there aren&amp;rsquo;t dusty corners with high WTF factors, but hopefully the
+code I&amp;rsquo;ll need to read to understand how Mercurial works won&amp;rsquo;t be too incredibly
+nasty for me to ever have a hope of decoding it.&lt;/p&gt;
+&lt;h3 id=&#34;an-excuse-to-write-a-bunch-of-rust-code&#34;&gt;An excuse to write a bunch of rust code&lt;/h3&gt;
+&lt;p&gt;Finally, I&amp;rsquo;m hoping to use this project as an excuse to learn more about the
+rust programming language. My goal is to write as much code as possible in
+rust. I have no expectation that the code I&amp;rsquo;ll be writing will be useful for
+anyone, however there is a long-term plan to &lt;a href=&#34;https://www.mercurial-scm.org/wiki/OxidationPlan&#34;&gt;rewrite portions of Mercurial in
+rust&lt;/a&gt;, so it&amp;rsquo;s possible that
+some of the code I&amp;rsquo;ll be writing will be useful for the project as whole. I&amp;rsquo;m
+excited to learn about rust because the idea of never needing to worry about
+memory corruption or data races while writing low-level code makes me feel
+tingly inside.&lt;/p&gt;
+&lt;h2 id=&#34;whats-next-and-goals&#34;&gt;What&amp;rsquo;s next and goals&lt;/h2&gt;
+&lt;p&gt;I&amp;rsquo;ll first start with a dive into the &lt;code&gt;.hg&lt;/code&gt; directory of a real-world
+repository. I&amp;rsquo;ll investigate the file structure and try to understand the way
+Mercurial stores its data on-disk. Next, I&amp;rsquo;ll be writing parsers for some of the
+data formats, and eventually hope to get to the point where I have a rust client
+that can parse data from the repository. If I get to the point where I can do
+&lt;code&gt;rust-hg log&lt;/code&gt; on a real-world repository, I will be very happy.&lt;/p&gt;
+</description>
+		</item>
+	</channel>
+</rss>

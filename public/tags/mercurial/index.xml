@@ -1,0 +1,878 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+	<channel>
+		<title>Mercurial on Nathan Goldbaum</title>
+		<link>https://ngoldbaum.github.io/tags/mercurial/</link>
+		<description>Recent content in Mercurial on Nathan Goldbaum</description>
+		<generator>Hugo 0.143.1</generator>
+		<language>en-us</language>
+		<lastBuildDate>Wed, 12 Jun 2019 10:06:24 -0400</lastBuildDate>
+		<atom:link href="https://ngoldbaum.github.io/tags/mercurial/index.xml" rel="self" type="application/rss+xml"/>
+		<item>
+			<title>The Rust Module System and Useful Crates for CLI Apps</title>
+			<link>https://ngoldbaum.github.io/posts/helpful-rust-cli-crates/</link>
+			<pubDate>Wed, 12 Jun 2019 10:06:24 -0400</pubDate>
+			<guid isPermaLink="true">https://ngoldbaum.github.io/posts/helpful-rust-cli-crates/</guid>
+			<description>&lt;p&gt;Today I&amp;rsquo;ll be continuing my
+&lt;a href=&#34;https://ngoldbaum.github.io/posts/my-first-post/&#34;&gt;series&lt;/a&gt;
+&lt;a href=&#34;https://ngoldbaum.github.io/posts/repo-contents/&#34;&gt;of&lt;/a&gt;
+&lt;a href=&#34;https://ngoldbaum.github.io/posts/revlog/&#34;&gt;posts&lt;/a&gt; on the rust implementation of
+the Mercurial version control system I&amp;rsquo;ve been working on. In this post I&amp;rsquo;ll be
+focusing on what I learned this week about the rust module system as well as a
+few helpful crates I discovered to aid in command-line argument parsing and
+error handling.&lt;/p&gt;
+&lt;h1 id=&#34;whats-in-a-name&#34;&gt;What&amp;rsquo;s in a Name?&lt;/h1&gt;
+&lt;p&gt;Since my last post I&amp;rsquo;ve landed on a name for my project that&amp;rsquo;s a bit nicer than
+&lt;code&gt;hg-rust&lt;/code&gt;. From now on this project will be known as &lt;code&gt;rug&lt;/code&gt;. I&amp;rsquo;ve renamed the
+repository on sr.ht and the code now lives at
+&lt;a href=&#34;https://hg.sr.ht/~ngoldbaum/rug&#34;&gt;https://hg.sr.ht/~ngoldbaum/rug&lt;/a&gt;. There should be redirects in place so the URLs
+in my old posts will continue to work. I&amp;rsquo;d also like to come up with a
+logo. Perhaps a rug with a crab on it that&amp;rsquo;s playing with a droplet of mercury?
+Probably not healthy for poor &lt;a href=&#34;https://rustacean.net/&#34;&gt;Ferris&lt;/a&gt;&amp;hellip;&lt;/p&gt;
+&lt;h1 id=&#34;the-rust-module-system&#34;&gt;The Rust Module System&lt;/h1&gt;
+&lt;p&gt;As of my last post, &lt;a href=&#34;https://hg.sr.ht/~ngoldbaum/rug/browse/ae0220d9fb018d4890f3b7a8ab7585d49f74899c/src/main.rs&#34;&gt;all of the
+code&lt;/a&gt;
+lived in a single &lt;code&gt;main.rs&lt;/code&gt; file that had grown to more than 200 lines of
+code. Long modules like this can make it difficult to understand exactly how
+everything interrelates. &lt;a href=&#34;https://doc.rust-lang.org/book/ch07-00-managing-growing-projects-with-packages-crates-and-modules.html&#34;&gt;Following the rust
+book&lt;/a&gt;
+I decided to break out the code in my project into submodules organized
+according to the logical structure of the existing code.&lt;/p&gt;
+&lt;p&gt;First, I &lt;a href=&#34;https://hg.sr.ht/~ngoldbaum/rug/rev/0585ddebf295fc6ce623086dc4904671b579aaec&#34;&gt;moved the
+code&lt;/a&gt;
+that defines the various custom structs I wrote last week out of &lt;code&gt;main.rs&lt;/code&gt; and
+into a new &lt;code&gt;revlogs&lt;/code&gt; module. At this point my &lt;code&gt;main.rs&lt;/code&gt; file was much, much
+simpler:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-rust&#34; data-lang=&#34;rust&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;use&lt;/span&gt; std::env;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;use&lt;/span&gt; std::fs::File;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;mod&lt;/span&gt; revlogs;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;fn&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt;() -&amp;gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;std&lt;/span&gt;::io::Result&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;()&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;let&lt;/span&gt; args: Vec&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;String&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; env::args().collect();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;let&lt;/span&gt; fname &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;args[&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;];
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;let&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;mut&lt;/span&gt; f &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; File::open(fname)&lt;span style=&#34;color:#f92672&#34;&gt;?&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;let&lt;/span&gt; revlog &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; revlogs::Revlog::new(&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;mut&lt;/span&gt; f)&lt;span style=&#34;color:#f92672&#34;&gt;?&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    println!(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;, revlog);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    Ok(())
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;Before this change all of the code that defined the &lt;code&gt;Revlog&lt;/code&gt; struct lived above
+the definition of the &lt;code&gt;main&lt;/code&gt; function. Now that code has been replaced with a
+single line: &lt;code&gt;mod revlogs&lt;/code&gt;. This line tells the rust compiler that there is
+either a file named &lt;code&gt;revlogs.rs&lt;/code&gt; or a file named &lt;code&gt;revlogs/mod.rs&lt;/code&gt;. The latter
+allows splitting out a module even further into submodules. The other
+modification to the &lt;code&gt;main&lt;/code&gt; function is the way I&amp;rsquo;m creating the &lt;code&gt;Revlog&lt;/code&gt;
+instance. Rather than being able to use the &lt;code&gt;Revlog&lt;/code&gt; name directly, I need to
+refer to it as &lt;code&gt;revlogs::Revlog&lt;/code&gt;.  I could have also said &lt;code&gt;use revlogs::Revlog&lt;/code&gt;
+above main to bring the &lt;code&gt;Revlog&lt;/code&gt; struct into scope, but I prefer to avoid doing
+that too much to make it clear where things are defined as I&amp;rsquo;m glancing at the
+code.&lt;/p&gt;
+&lt;p&gt;I also needed to make the &lt;code&gt;Revlog&lt;/code&gt; struct public, along with the &lt;code&gt;new&lt;/code&gt; method I
+implemented on it to create new Revlog instances from a file stream, so the
+struct definition now looks like:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-rust&#34; data-lang=&#34;rust&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#[derive(Debug)]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;pub&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Revlog&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    inline: &lt;span style=&#34;color:#66d9ef&#34;&gt;bool&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    generaldelta: &lt;span style=&#34;color:#66d9ef&#34;&gt;bool&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    entries: Vec&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;RevlogEntry&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;And the signature for the &lt;code&gt;new&lt;/code&gt; method now begins with &lt;code&gt;pub fn new&lt;/code&gt; instead of just &lt;code&gt;fn new&lt;/code&gt;. I haven&amp;rsquo;t thought in detail about what &lt;em&gt;should&lt;/em&gt; be public versus what the
+compiler insists has to be public due to how I&amp;rsquo;m using these modules. I think
+for a command-line application it doesn&amp;rsquo;t matter so much what my public API is
+because no one will be consuming it, but for a library it&amp;rsquo;s probably
+important. I will come back to these considerations later and see if I can
+understand how to manage separation of concerns in rust in more detail.&lt;/p&gt;
+&lt;p&gt;Next I &lt;a href=&#34;https://hg.sr.ht/~ngoldbaum/rug/rev/18cff5dfd47d45ed6167c4dd5a51f8e1b2d0e82f&#34;&gt;further split
+out&lt;/a&gt;
+out the code for the &lt;code&gt;Revlog&lt;/code&gt; struct into submodules for the &lt;code&gt;Entry&lt;/code&gt;, &lt;code&gt;Content&lt;/code&gt;,
+and &lt;code&gt;Header&lt;/code&gt; structs and &lt;a href=&#34;https://hg.sr.ht/~ngoldbaum/rug/rev/6cbbe3b1683453eba4382b8ab04f5c043cd10e5e&#34;&gt;then
+moved&lt;/a&gt;
+the &lt;code&gt;content&lt;/code&gt; and &lt;code&gt;entry&lt;/code&gt; modules to be submodules of the &lt;code&gt;entry&lt;/code&gt; submodule. Now
+everything is nice and modular, each module is relatively short, and the code is
+structured according to the logical structure of the data structure the code
+describes. Nice!&lt;/p&gt;
+&lt;h2 id=&#34;error-handling-with-the-snafu-crate&#34;&gt;Error Handling with the Snafu Crate&lt;/h2&gt;
+&lt;p&gt;Error handling in rust is still something that confuses me. It&amp;rsquo;s very different
+from how error handling works in Python with exceptions. In rust functions that
+might raise errors return an enum called &lt;code&gt;Result&lt;/code&gt; that wraps either a valid
+return value or an error. One problem I have with this is that the errors in the
+rust standard library do not contain context (e.g. a backtrace) unless you
+explicitly add a context to the error. Any context associated with the error
+needs to be present at the location the error gets created, calling sites higher
+up the call stack that might have more information that would be usable to
+create a more helpful error message must consume the error and transform it into
+a new error with the appropriate context, all completely manually. Finally,
+rust&amp;rsquo;s static type system means that errors of one type are not necessarily
+convertible to errors of another type, so one must either explicitly convert
+errors from one type to another or manually define the conversion methods to and
+from a custom error type to other error types. This leads to a proliferation of
+boilerplate code for each error type.&lt;/p&gt;
+&lt;p&gt;The rust error handling story is still somewhat in flux. For example, &lt;a href=&#34;https://github.com/rust-lang/rfcs/blob/master/text/2504-fix-error.md&#34;&gt;RFC
+2504&lt;/a&gt;
+describes an ongoing effort to reword the &lt;code&gt;Error&lt;/code&gt; type in the standard
+library. In online discussions people might suggest using the
+&lt;a href=&#34;https://github.com/rust-lang-nursery/error-chain&#34;&gt;&lt;code&gt;error-chain&lt;/code&gt;&lt;/a&gt; crate, the
+&lt;a href=&#34;https://github.com/rust-lang-nursery/failure&#34;&gt;&lt;code&gt;failure&lt;/code&gt;&lt;/a&gt; crate, or suggest just
+using the standard library &lt;code&gt;Error&lt;/code&gt; type and having lots of boilerplate in code
+to handle conversions. As of early Summer 2019, the consensus seems to have
+moved to the &lt;a href=&#34;https://github.com/shepmaster/snafu&#34;&gt;&lt;code&gt;snafu&lt;/code&gt;&lt;/a&gt; crate. From my
+perspective, one of the main advantages of &lt;code&gt;snafu&lt;/code&gt; over &lt;code&gt;failure&lt;/code&gt; is that
+&lt;code&gt;snafu&lt;/code&gt; has much better documentation that contains clear usage examples. That&amp;rsquo;s
+the main reason I chose to use it. A &lt;a href=&#34;https://old.reddit.com/r/rust/comments/bubtu8/which_error_crate_are_going_to_use_in_2019/&#34;&gt;recent reddit
+thread&lt;/a&gt;
+summarizes the state of things in 2019. I&amp;rsquo;m hoping that in the next year or two
+this situation will grow more clear.&lt;/p&gt;
+&lt;p&gt;The philosophy behind the Snafu crate is to transform instances of errors
+generated by standard library code or code outside of a developers control into
+application-specific errors that are variants of a generic enum that represents
+generic errors an application can produce. One defines an enum, in my case I
+called it &lt;code&gt;RugError&lt;/code&gt;, with variants that correspond to various kinds of errors:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-rust&#34; data-lang=&#34;rust&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;use&lt;/span&gt; snafu::{Backtrace, Snafu}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#[derive(Debug, Snafu)]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;enum&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;RugError&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;#[snafu(display(&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;rug must be run from inside a valid directory&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;))]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    NotAValidDirectory {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        backtrace: &lt;span style=&#34;color:#a6e22e&#34;&gt;Backtrace&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        source: &lt;span style=&#34;color:#a6e22e&#34;&gt;std&lt;/span&gt;::io::Error,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    },
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;#[snafu(display(&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;rug must be run from inside a repository&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;))]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    NotARepository { backtrace: &lt;span style=&#34;color:#a6e22e&#34;&gt;Backtrace&lt;/span&gt; },
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;#[snafu(display(&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;The changelog file is not present in repository {}: {}&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;                    path.display(), source))]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    NoChangelog {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        path: &lt;span style=&#34;color:#a6e22e&#34;&gt;PathBuf&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        source: &lt;span style=&#34;color:#a6e22e&#34;&gt;std&lt;/span&gt;::io::Error,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        backtrace: &lt;span style=&#34;color:#a6e22e&#34;&gt;Backtrace&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    },
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;#[snafu(display(&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;The revlog file {} cannot be parsed: {}&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;, path.display(), source))]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    CannotParseRevlog {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        path: &lt;span style=&#34;color:#a6e22e&#34;&gt;PathBuf&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        source: &lt;span style=&#34;color:#a6e22e&#34;&gt;std&lt;/span&gt;::io::Error,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        backtrace: &lt;span style=&#34;color:#a6e22e&#34;&gt;Backtrace&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    },
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;I&amp;rsquo;ve told the compiler that my &lt;code&gt;RugError&lt;/code&gt; enum derives from the &lt;code&gt;Snafu&lt;/code&gt;
+attribute. Each variant in the &lt;code&gt;RugError&lt;/code&gt; enum is given a &lt;code&gt;snafu&lt;/code&gt; attribute, which allows
+me to customize the error message based on context-specific data. Together these
+attributes generate all of the error-conversion boilerplate that I would
+otherwise need to write myself to allow instances of my error type to be created
+from standard library errors.&lt;/p&gt;
+&lt;p&gt;Each error type can optionally define a &lt;code&gt;source&lt;/code&gt; and &lt;code&gt;backtrace&lt;/code&gt; field. If
+&lt;code&gt;source&lt;/code&gt; is defined, it maps to an error type. That means that the corresponding
+variant must be created only from errors of the corresponding type. If one tries
+to create an error from an incompatible error type that will lead to a type
+mismatch and failed compilation. If &lt;code&gt;source&lt;/code&gt; is not provided, that means one is
+creating an error from the &lt;code&gt;None&lt;/code&gt; variant of some &lt;code&gt;Option&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;If the &lt;code&gt;backtrace&lt;/code&gt; field is defined, the error type generated by snafu will
+contain a backtrace and when the error is printed out in a &lt;code&gt;Debug&lt;/code&gt; or
+&lt;code&gt;Display&lt;/code&gt; representation, the backtrace will also be printed. This is extremely
+helpful if it isn&amp;rsquo;t clear where exactly an error of some type might be generated
+in the code or if it isn&amp;rsquo;t clear how a piece of code is ultimately getting
+called by the application. Finally there can also be optional fields that
+contain metadata one can use to construct a nice error message. For example the
+&lt;code&gt;CannotParseRevlog&lt;/code&gt; variant in my &lt;code&gt;RugError&lt;/code&gt; enum contains a &lt;code&gt;path&lt;/code&gt; field that
+represents the path to the changelog file that cannot be parsed. The error
+message generated by &lt;code&gt;CannotParseRevlog&lt;/code&gt; uses both the &lt;code&gt;path&lt;/code&gt; and the &lt;code&gt;source&lt;/code&gt;
+field to generate the error message.&lt;/p&gt;
+&lt;p&gt;To make use of these errors, the &lt;code&gt;snafu&lt;/code&gt; crate provides the &lt;code&gt;ResultExt&lt;/code&gt; and
+&lt;code&gt;OptionExt&lt;/code&gt; trait to extend the standard library &lt;code&gt;Result&lt;/code&gt; and &lt;code&gt;Option&lt;/code&gt; enums
+with new methods that can transform errors at call sites. I made use of the
+&lt;code&gt;context&lt;/code&gt; method in a few places. For example, here is the function that
+determines whether the current working directory is a mercurial repository:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-rust&#34; data-lang=&#34;rust&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;use&lt;/span&gt; snafu::{OptionExt, ResultExt}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;fn&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;hg_dir&lt;/span&gt;(current_dir: &lt;span style=&#34;color:#a6e22e&#34;&gt;PathBuf&lt;/span&gt;) -&amp;gt; Result&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;PathBuf, RugError&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;loop&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;let&lt;/span&gt; p &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;match&lt;/span&gt; anc.next() {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            Some(d) &lt;span style=&#34;color:#f92672&#34;&gt;=&amp;gt;&lt;/span&gt; d,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            None &lt;span style=&#34;color:#f92672&#34;&gt;=&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;break&lt;/span&gt; None,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        };
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;let&lt;/span&gt; possible_hg_dir &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; p.join(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;.hg&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;if&lt;/span&gt; possible_hg_dir.is_dir() {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#66d9ef&#34;&gt;break&lt;/span&gt; Some(possible_hg_dir);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    .context(NotARepository)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This function takes no arguments and returns a &lt;code&gt;Result&lt;/code&gt; that can represent
+either one of the custom errors I defined - a variant of the &lt;code&gt;RugError&lt;/code&gt; enum, or
+the path of the &lt;code&gt;.hg&lt;/code&gt; directory in the root of the repository, represented by a
+rust &lt;code&gt;PathBuf&lt;/code&gt; object. The &lt;code&gt;loop&lt;/code&gt; block returns an anonymous &lt;code&gt;Option&lt;/code&gt; (e.g. it&amp;rsquo;s
+not bound to a variable name), that I call &lt;code&gt;context&lt;/code&gt; on. I pass &lt;code&gt;context&lt;/code&gt; the
+&lt;code&gt;NotARepository&lt;/code&gt; variant. The &lt;code&gt;context&lt;/code&gt; function converts the &lt;code&gt;None&lt;/code&gt; variant of
+the &lt;code&gt;Option&lt;/code&gt; into the &lt;code&gt;NotARepository&lt;/code&gt; error. If the error ever bubbled back to
+&lt;code&gt;main&lt;/code&gt; it would get printed along with a backtrace because &lt;code&gt;NotARepository&lt;/code&gt; has
+a &lt;code&gt;backtrace&lt;/code&gt; field. All of this happens automatically - this is the magic of
+the &lt;code&gt;snafu&lt;/code&gt; crate!&lt;/p&gt;
+&lt;p&gt;Side note - this uses a newish feature of rust - the &lt;code&gt;break&lt;/code&gt; statement can
+return values from inside a &lt;code&gt;loop&lt;/code&gt; block. This feature was very handy here.
+Without it I would have needed to create a function that did the loop and
+explicitly returned an &lt;code&gt;Option&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;I can also call &lt;code&gt;context&lt;/code&gt; on a &lt;code&gt;Result&lt;/code&gt;. For example, here&amp;rsquo;s the line where I
+try to open the changelog file. If it isn&amp;rsquo;t present, I create a custom error
+that includes the path to the file that is supposed to exist:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-rust&#34; data-lang=&#34;rust&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;let&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;mut&lt;/span&gt; f &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; File::open(&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;fname).context(NoChangelog { path: &lt;span style=&#34;color:#66d9ef&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;fname&lt;/span&gt; })&lt;span style=&#34;color:#f92672&#34;&gt;?&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;One downside of the &lt;code&gt;snafu&lt;/code&gt; approach to error handling is that I need to be
+careful to ensure standard library errors get converted into &lt;code&gt;RugError&lt;/code&gt;
+variants. In practice this means replacing usages of &lt;code&gt;?&lt;/code&gt; with
+&lt;code&gt;context(SomeError)?&lt;/code&gt;, This can definitely be more verbose, however it also
+forces me to think about the meaning of my code and what exactly each error
+state really means. I&amp;rsquo;m hopeful that this will make debugging easier and lead to
+fewer cases where I&amp;rsquo;m looking at opaque, poorly-described errors.&lt;/p&gt;
+&lt;h2 id=&#34;command-line-argument-parsing-with-clap-and-structopt&#34;&gt;Command Line Argument Parsing with &lt;code&gt;clap&lt;/code&gt; and &lt;code&gt;structopt&lt;/code&gt;&lt;/h2&gt;
+&lt;p&gt;Of course it&amp;rsquo;s possible to parse command line arguments fully manually by
+consuming the iterator over arguments returned by the &lt;code&gt;std::env::args&lt;/code&gt; function,
+as described in &lt;a href=&#34;https://doc.rust-lang.org/book/ch12-01-accepting-command-line-arguments.html&#34;&gt;the
+book&lt;/a&gt;. This
+works but requires a lot of wheel-reinventing to get common behaviors like
+subcommands, positional arguments, optional arguments, and help output to work
+properly. It makes sense to delegate that work to an external library.&lt;/p&gt;
+&lt;p&gt;My first attempt at this used the &lt;code&gt;clap&lt;/code&gt; library. In my usage of &lt;code&gt;clap&lt;/code&gt; I
+generated the command line arguments for the &lt;code&gt;rug log&lt;/code&gt; subcommand like this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-rust&#34; data-lang=&#34;rust&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;use&lt;/span&gt; clap::{App, AppSettings, SubCommand};
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;fn&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt;() -&amp;gt; Result&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;(), RugError&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;let&lt;/span&gt; matches &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; App::new(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;rug&amp;#34;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        .version(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;0.1&amp;#34;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        .author(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Nathan Goldbaum&amp;#34;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        .about(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;A rust implementation of some hg functionality&amp;#34;&lt;/span&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        .setting(AppSettings::ArgRequiredElseHelp)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        .subcommand(SubCommand::with_name(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;log&amp;#34;&lt;/span&gt;))
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        .get_matches();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;match&lt;/span&gt; matches.subcommand_name() {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        Some(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;log&amp;#34;&lt;/span&gt;) &lt;span style=&#34;color:#f92672&#34;&gt;=&amp;gt;&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            hg_log()
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        _ &lt;span style=&#34;color:#f92672&#34;&gt;=&amp;gt;&lt;/span&gt; panic!(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;should be unreachable!&amp;#34;&lt;/span&gt;),
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    Ok(())
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The name of the &lt;code&gt;App&lt;/code&gt; corresponds to the name of the CLI binary. The &lt;code&gt;version&lt;/code&gt;,
+&lt;code&gt;author&lt;/code&gt;, and &lt;code&gt;about&lt;/code&gt; fields populate information in the help text for the
+binary reported by &lt;code&gt;rug --help&lt;/code&gt;. The &lt;code&gt;setting&lt;/code&gt; usage tells &lt;code&gt;clap&lt;/code&gt; to print the
+help text if someone calls &lt;code&gt;rug&lt;/code&gt; with no arguments. Finally the &lt;code&gt;subcommand&lt;/code&gt;
+creates a &lt;code&gt;log&lt;/code&gt; subcommand that for now takes no arguments.&lt;/p&gt;
+&lt;p&gt;Finally to initiate the control flow for the program, I match over the name of
+the subcommand that a user supplied and then do the work of running &lt;code&gt;rug log&lt;/code&gt; if
+someone passes in &lt;code&gt;log&lt;/code&gt;. Note that the default branch is marked as unreachable,
+that&amp;rsquo;s because any other subcommand name will be caught and result in an error
+message reported to the user at the command line. Here&amp;rsquo;s a small command-line
+session to see all of that in action:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ rug
+rug 0.1
+Nathan Goldbaum
+A rust implementation of some hg functionality
+
+USAGE:
+    rug &amp;lt;SUBCOMMAND&amp;gt;
+
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+SUBCOMMANDS:
+    help    Prints this message or the help of the given subcommand(s)
+    log
+
+$ rug notacommand
+error: Found argument &amp;#39;notacommand&amp;#39; which wasn&amp;#39;t expected, or isn&amp;#39;t valid in this context
+
+USAGE:
+    rug &amp;lt;SUBCOMMAND&amp;gt;
+
+For more information try --help
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;I also get colored output in the error case to visually highlight the important
+parts of the error message to the user - the colored output doesn&amp;rsquo;t show up in
+this post so don&amp;rsquo;t worry that you can&amp;rsquo;t see it here. I get all of this fancy
+functionality more or less &amp;ldquo;for free&amp;rdquo; just by setting up &lt;code&gt;clap&lt;/code&gt;. I like it!&lt;/p&gt;
+&lt;p&gt;One thing I don&amp;rsquo;t like is that I&amp;rsquo;m matching over strings. In general &lt;code&gt;clap&lt;/code&gt; will
+return strings to me that represent the values of command line
+options. That will work but will be brittle. I also won&amp;rsquo;t be able to use the
+ability of rust to check that I&amp;rsquo;m using all of the variants of an enum in a
+match statement at compile time - so I might forget to implement a feature and
+the compiler won&amp;rsquo;t alert me about it.&lt;/p&gt;
+&lt;p&gt;This problem is solved by &lt;code&gt;structopt&lt;/code&gt;, another crate that wraps &lt;code&gt;clap&lt;/code&gt; and
+allows one to define the command-line arguments and subcommands in terms of and
+enums or structs. Here is the equivalent &lt;code&gt;structopt&lt;/code&gt; code to my usage of &lt;code&gt;clap&lt;/code&gt;
+above:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-rust&#34; data-lang=&#34;rust&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#[derive(StructOpt)]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#[structopt(
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;    name = &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;rug&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;    about = &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;A rust implementation of some hg functionality&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;    author = &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;Nathan Goldbaum&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;    version = &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;0.1&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;    raw(setting = &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;structopt::clap::AppSettings::ArgRequiredElseHelp&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;)
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;)]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;enum&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;Rug&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;#[structopt(name = &lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;log&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;)]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    Log {},
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;fn&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;main&lt;/span&gt;() {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;match&lt;/span&gt; Rug::from_args() {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        Rug::Log {} &lt;span style=&#34;color:#f92672&#34;&gt;=&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;match&lt;/span&gt; hg_log() {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            Ok(_) &lt;span style=&#34;color:#f92672&#34;&gt;=&amp;gt;&lt;/span&gt; {}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            Err(e) &lt;span style=&#34;color:#f92672&#34;&gt;=&amp;gt;&lt;/span&gt; println!(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;, e),
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        },
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;We define an &lt;code&gt;enum&lt;/code&gt; whose variants represent all of the different
+subcommands. Each subcommand can then in turn define arguments that it
+accepts. In &lt;code&gt;main&lt;/code&gt; I instantiate an instance of the enum from the command-line
+arguments and match over the result. Since the result will be variants of the
+enum, I know that I&amp;rsquo;ve handled all possible subcommands, otherwise I would
+generate a compiler error.&lt;/p&gt;
+&lt;p&gt;At this point I&amp;rsquo;m pretty happy with the state of things. The only thing that
+bothers me about structopt (and generically with code that uses rust&amp;rsquo;s
+&lt;a href=&#34;https://doc.rust-lang.org/reference/attributes.html&#34;&gt;attribute&lt;/a&gt; system) is that
+I&amp;rsquo;m programming inside of the attribute block, which feels a bit like writing
+code inside of a string: outside of normal control flow. My editor doesn&amp;rsquo;t
+highlight this code like normal code. The whole thing feels very magical. That
+said, I&amp;rsquo;m OK with the magic if it allows me to avoid a ton of boilerplate and
+make my code more maintainable.&lt;/p&gt;
+</description>
+		</item>
+		<item>
+			<title>Storing versioned data with revlogs</title>
+			<link>https://ngoldbaum.github.io/posts/revlog/</link>
+			<pubDate>Thu, 23 May 2019 09:31:46 -0400</pubDate>
+			<guid isPermaLink="true">https://ngoldbaum.github.io/posts/revlog/</guid>
+			<description>&lt;p&gt;Mercurial makes use of the &lt;a href=&#34;https://www.mercurial-scm.org/wiki/Revlog&#34;&gt;revlog data
+format&lt;/a&gt; for storing versioned data of
+all kinds on-disk. The design constraints that led to the choice of this data
+format are described &lt;a href=&#34;https://www.mercurial-scm.org/wiki/Presentations?action=AttachFile&amp;amp;do=view&amp;amp;target=ols-mercurial-paper.pdf&#34;&gt;in a paper by Matt
+Mackall&lt;/a&gt;,
+the original author of Mercurial. There is also internal technical documentation
+for the revlog data format included &lt;a href=&#34;https://www.mercurial-scm.org/repo/hg/file/default/mercurial/help/internals/revlogs.txt&#34;&gt;in Mercurial&amp;rsquo;s online
+help&lt;/a&gt;,
+accessible via &lt;code&gt;hg help internals.revlogs&lt;/code&gt;.&lt;/p&gt;
+&lt;h2 id=&#34;what-is-a-revlog-exactly&#34;&gt;What is a revlog exactly?&lt;/h2&gt;
+&lt;p&gt;A revlog - short for a revision log - is an append-only data structure for
+storing discrete data entries that relate to other entries via a directed
+acyclic graph (a
+&lt;a href=&#34;https://en.wikipedia.org/wiki/Directed_acyclic_graph&#34;&gt;DAG&lt;/a&gt;). For Mercurial&amp;rsquo;s
+usage, the DAG in question is the graph of changes to the repository. Each entry
+in a revlog consists of metadata and compressed revision data for the entry. The
+metadata contains a cryptographic hash of the content of the revision, the size
+of the content and metadata, and references to the &lt;em&gt;parent&lt;/em&gt; entries for the
+revlog. Each entry in a revlog can only have two parents. This is one of the
+reasons that Mercurial does &lt;em&gt;not&lt;/em&gt; allow &lt;a href=&#34;http://www.freblogg.com/2016/12/git-octopus-merge.html&#34;&gt;octopus
+merges&lt;/a&gt;, where revisions
+can have an arbitrary number of parents. The revision data are stored in a
+compressed format, either containing the full content of a file at a given
+revision or as a delta relative to the state of the file at a previous
+revision. Whether or not a revision contains a delta or the full content of a
+file depends on how much data would be required to reconstruct the file
+(e.g. the length of the already existing delta chain or the size of the change
+in the revision). By storing occasional snapshots, Mercurial can reconstruct
+repository content at any revision without going through all of the history of
+the project and also without storing an unreasonable amount of data for each
+revision. The style of delta chains with occasional snapshots is inspired by
+video compression technology, where information about each frame is stored as
+deltas to the previous frame, with occasional keyframes containing the entire
+content of a frame of video.&lt;/p&gt;
+&lt;h2 id=&#34;kinds-of-revlogs&#34;&gt;Kinds of revlogs&lt;/h2&gt;
+&lt;p&gt;Mercurial stores all versioned data using three different kinds of revlog files,
+&lt;em&gt;changelogs&lt;/em&gt;, &lt;em&gt;manifestlogs&lt;/em&gt;, and &lt;em&gt;filelogs&lt;/em&gt;. Each of these have the same format, a
+header followed by zlib-compressed content, but differ in the meaning of the
+content. Changelogs store metadata about each commit, reading from this file is
+sufficient to get most information displayed by &lt;code&gt;hg log&lt;/code&gt;. Manifestlogs store the
+manifest of the repository - a list of files contained in the repository at a
+revision. Filelogs contain the revision information for individual files tracked
+in a repository. Each of these revlogs are linked to each other. The changelog
+contains a reference to a manifestlog entry, that manifestlog entry will in turn
+contain references to filelog entries. By reading data from each of these revlog
+files in turn, one can get the state of the files tracked by the repository at
+each revision. This is how &lt;code&gt;hg update&lt;/code&gt; works to update the state of the working
+directory to a different revision.&lt;/p&gt;
+&lt;h2 id=&#34;content-of-a-revlog-file&#34;&gt;Content of a revlog file&lt;/h2&gt;
+&lt;p&gt;Let&amp;rsquo;s take a look at a revlog file from the test repository we created in &lt;a href=&#34;https://ngoldbaum.github.io/posts/repo-contents/&#34;&gt;a
+previous blog post&lt;/a&gt;. For now
+we&amp;rsquo;re going to be looking at the &lt;em&gt;changelog&lt;/em&gt; file,
+&lt;code&gt;.hg/store/00changelog.i&lt;/code&gt;. This revlog file contains information about each
+commit in the repository. Note that most revlogs used by Mercurial store the
+content of individual files in the repository, but since revlogs are a generic
+store for versioned data they can store versioned metadata like commit
+descriptions and authors as well.&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ cd test-repository/.hg/store
+$ xxd 00changelog.i
+00000000: 0001 0001 0000 0000 0000 006f 0000 0077  ...........o...w
+00000010: 0000 0000 0000 0000 ffff ffff ffff ffff  ................
+00000020: 6f33 46b9 4a1f bee7 0a81 0370 8fd6 d485  o3F.J......p....
+00000030: edc8 8602 0000 0000 0000 0000 0000 0000  ................
+00000040: 789c 25c8 410e 0221 0c00 c03b afe0 05a6  x.%.A..!...;....
+00000050: 85b6 6062 8c37 6f7e c194 2dbb 9200 7b59  ..`b.7o~..-...{Y
+00000060: ff6f e21e 6732 5052 b41a 2d20 1346 4939  .o..g2PR..- .FI9
+00000070: 8914 415e 0024 64ae d722 d956 f7d2 e3a3  ..A^.$d..&amp;#34;.V....
+00000080: d33f f76e 45bf c3df e63f 3044 8a8f 6d68  .?.nE....?0D..mh
+00000090: eb97 651f 7787 cc99 23a6 401e 8900 9cbe  ..e.w...#.@.....
+000000a0: d7d6 ab73 6ad6 e6e6 4ffe 00b4 ba22 1400  ...sj...O....&amp;#34;..
+000000b0: 0000 0000 6f00 0000 0000 7800 0000 8400  ....o.....x.....
+000000c0: 0000 0100 0000 0100 0000 00ff ffff ff0e  ................
+000000d0: 80b4 9a8e dc08 c2d9 ffcd cd7f d71b 55de  ..............U.
+000000e0: 9a7f 7f00 0000 0000 0000 0000 0000 0078  ...............x
+000000f0: 9c25 c94b 0a02 310c 00d0 7d4f 9113 483f  .%.K..1...}O..H?
+00000100: 894d 41c4 9d3b af20 eda4 1d0b fdc0 50c1  .MA..;. ......P.
+00000110: e30b ba7d 4fce 1c74 287a 4317 10a9 38b4  ...}O..t(zC...8.
+00000120: deb1 f7cc 2892 434e 44c9 ea8c ea11 d72b  ....(.CND......+
+00000130: 0eb8 cf26 29be 3b5c c60f 8c75 e86e 7b8f  ...&amp;amp;).;\...u.n{.
+00000140: b59d b6d9 afca 1031 39e3 89c1 206a ade2  .......19... j..
+00000150: b3d4 9695 8a22 75ec d0e7 9161 e5cf 8235  .....&amp;#34;u....a...5
+00000160: e17f 5fb0 0c27 1c                        .._..&amp;#39;.
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Hmm, no luck about any of the data in this file being human-readable - it
+appears to be more or less random binary data that we&amp;rsquo;re going to need to do a
+bit more work to decode. We should perhaps not be surprised about this, since
+revlogs store revision data in a compressed format - we&amp;rsquo;d need to be able to see
+the uncompressed revision data to get human-readable text back.&lt;/p&gt;
+&lt;p&gt;According to the Mercurial documentation (in particular &lt;code&gt;hg help internals.revlogs&lt;/code&gt;, see
+&lt;a href=&#34;https://www.mercurial-scm.org/repo/hg/help/internals.revlogs&#34;&gt;here&lt;/a&gt;), the first
+four bytes of the revlog encodes the version of the revlog data format used by
+the file as well as various feature flags. In this case the bytes are
+&lt;code&gt;00010001&lt;/code&gt;, which corresponds to a file that uses v1 of the revlog format and
+sets a feature flag that says revision data are stored &lt;em&gt;inline&lt;/em&gt; in this
+file. This &lt;code&gt;v1&lt;/code&gt; version of the revlog format is called RevlogNG - NG is short for
+next generation, which made a lot of sense when it replaced Mercurial&amp;rsquo;s original
+revlog format in 2006. These days practically all repositories use one variant
+or another of the &lt;code&gt;v1&lt;/code&gt; RevlogNG format. Data for revlog entries can either be
+stored interleaved with metadata entries or in a separate data file. Interleaved
+data are used for relatively small revlogs while separate data files are stored
+for large revlogs. This ensures revlog metadata can always be parsed without
+also needing to scan through large amounts of revision data.&lt;/p&gt;
+&lt;p&gt;Following the header is the first entry. Each entry consists of metadata and
+revision data:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The number of bytes from the beginning of the file (6 bytes)&lt;/li&gt;
+&lt;li&gt;Bit flags for special behavior. For now we will ignore these. (2 bytes)&lt;/li&gt;
+&lt;li&gt;The length of the compressed revision data or delta stored in the entry. (4
+bytes)&lt;/li&gt;
+&lt;li&gt;The length of the full revision data in uncompressed format, not the size
+of an uncompressed delta if the entry stores a delta. (4 bytes)&lt;/li&gt;
+&lt;li&gt;Base revision to use when restoring the full text from a delta. If the base
+revision is the current revision, the revision stores the full text. (4
+bytes).&lt;/li&gt;
+&lt;li&gt;A &lt;em&gt;linkrev&lt;/em&gt;, the revision number of a revision that this entry is linked to. This
+allows a revision in one revlog to refer to a revision in a different
+revlog. For example, the revlog entry for a file points to the revlog entry in
+the &lt;code&gt;00changelog.i&lt;/code&gt; changeset index file for the changeset that produced the
+revlog entry. (4 bytes)&lt;/li&gt;
+&lt;li&gt;Signed integer revision of the first parent (&lt;code&gt;p1&lt;/code&gt;), -1 indicates no parent. (4
+bytes)&lt;/li&gt;
+&lt;li&gt;Signed integer revision of the second parent (&lt;code&gt;p2&lt;/code&gt;), -1 indicates no
+parent. (4 bytes)&lt;/li&gt;
+&lt;li&gt;Hash of the revision&amp;rsquo;s content. (32 bytes).&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Currently Mercurial uses a SHA-1 hash. Since SHA-1 hashes are 20 bytes long, the
+remaining 12 bytes are set to zero. In the future repositories will use a
+different, more secure hash function that can use up to 32 bytes to store
+hashes. Since the offset to revision 0 will always be zero, it is elided. The
+4-byte header takes the place of the offset for the first revision. The linkrev
+and parent revisions are stored as integer revision numbers. The linkrev is the
+revision number in the linked revlog file while the parent revisions are the
+revision numbers in the current revlog.&lt;/p&gt;
+&lt;p&gt;For inline revlogs, the raw revision data follows the index entry, with no
+header or padding in between. For non-inline revlogs, the data for the entry are
+written at the offset specified in the first six bytes of the index entry. For
+non-inline revlogs, the data are stored in a file with a &lt;code&gt;&amp;quot;.d&amp;quot;&lt;/code&gt; filename suffix
+while the revlog index entries are stored in a &lt;code&gt;&amp;quot;.i&amp;quot;&lt;/code&gt; file. The revision entires
+themselves consist of an optional one-byte header followed by the revision
+data. The byte is either &lt;code&gt;\0&lt;/code&gt;, for entries that are header-only and contain no
+revision data, &lt;code&gt;u&lt;/code&gt;, for uncompressed revision data, and &lt;code&gt;x&lt;/code&gt;, for zlib compressed
+revision data.&lt;/p&gt;
+&lt;h2 id=&#34;representing-revlogs-in-rust&#34;&gt;Representing revlogs in rust&lt;/h2&gt;
+&lt;p&gt;I&amp;rsquo;ve written a basic parser for this data format in Rust and &lt;a href=&#34;https://hg.sr.ht/~ngoldbaum/hg-rust/browse/466e0f40365e/revlogs/src/main.rs&#34;&gt;put it up on
+hg.sr.ht&lt;/a&gt;,
+a free (for the time being) service for hosting Mercurial repositories. The data are stored
+using two structs, one for the header:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-rust&#34; data-lang=&#34;rust&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;RevlogHeader&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    offset: &lt;span style=&#34;color:#66d9ef&#34;&gt;u64&lt;/span&gt;, &lt;span style=&#34;color:#75715e&#34;&gt;// really 6 bytes but easier to represent as a u64
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&lt;/span&gt;    bitflags: [&lt;span style=&#34;color:#66d9ef&#34;&gt;u8&lt;/span&gt;; &lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;],
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    compressedlength: &lt;span style=&#34;color:#66d9ef&#34;&gt;u32&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    uncompressedlength: &lt;span style=&#34;color:#66d9ef&#34;&gt;u32&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    baserev: &lt;span style=&#34;color:#66d9ef&#34;&gt;i32&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    linkrev: &lt;span style=&#34;color:#66d9ef&#34;&gt;i32&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    p1rev: &lt;span style=&#34;color:#66d9ef&#34;&gt;i32&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    p2rev: &lt;span style=&#34;color:#66d9ef&#34;&gt;i32&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    hash: [&lt;span style=&#34;color:#66d9ef&#34;&gt;u8&lt;/span&gt;; &lt;span style=&#34;color:#ae81ff&#34;&gt;32&lt;/span&gt;],
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;And another for the content of the revlog entry itself, which includes a header
+as well as uncompressed content of the revlog:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-rust&#34; data-lang=&#34;rust&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;RevlogEntry&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    header: &lt;span style=&#34;color:#a6e22e&#34;&gt;RevlogHeader&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    content: &lt;span style=&#34;color:#a6e22e&#34;&gt;RevlogContent&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;The content field is represented using an enum:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-rust&#34; data-lang=&#34;rust&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;enum&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;RevlogContent&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    Generic(String),
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;For now the enum only has a single variant, and is a trivial wrapper for a
+String. The next step is to add special handling for changelogs,
+manifestlogs, and filelogs, so this will eventually look like:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-rust&#34; data-lang=&#34;rust&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;enum&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;RevlogContent&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    Changelog(ChangelogEntry),
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    Manigestlog(ManifestlogEntry),
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    Filelog(FilelogEntry),
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This will allow me to add special handling and pretty-printers or the different
+kinds of revlogs used by Mercurial.&lt;/p&gt;
+&lt;p&gt;To actually read the changelog entries, we need to read the header, get the size
+of the content of the revlog entry from the header, read the content, and
+finally decompress the content. Since revlog headers are always 64 bytes, to get
+the header we read 64 bytes of the changelog file and parse those destructure
+the header content into the logical described above into the fields of the
+&lt;code&gt;RevlogHeader&lt;/code&gt; struct:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-rust&#34; data-lang=&#34;rust&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;use&lt;/span&gt; byteorder::{BigEndian, ReadBytesExt};
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;use&lt;/span&gt; std::io;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;impl&lt;/span&gt; RevlogHeader {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;fn&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;new&lt;/span&gt;(buffer: &lt;span style=&#34;color:#66d9ef&#34;&gt;&amp;amp;&lt;/span&gt;[&lt;span style=&#34;color:#66d9ef&#34;&gt;u8&lt;/span&gt;; &lt;span style=&#34;color:#ae81ff&#34;&gt;64&lt;/span&gt;]) -&amp;gt; Result&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;RevlogHeader, io::Error&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;let&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;mut&lt;/span&gt; cursor &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; Cursor::new(buffer &lt;span style=&#34;color:#66d9ef&#34;&gt;as&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;[&lt;span style=&#34;color:#66d9ef&#34;&gt;u8&lt;/span&gt;]);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        Ok(RevlogHeader {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            offset: &lt;span style=&#34;color:#a6e22e&#34;&gt;cursor&lt;/span&gt;.read_u48::&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;BigEndian&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;()&lt;span style=&#34;color:#f92672&#34;&gt;?&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;as&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;u64&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            bitflags: &lt;span style=&#34;color:#a6e22e&#34;&gt;cursor&lt;/span&gt;.read_u16::&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;BigEndian&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;()&lt;span style=&#34;color:#f92672&#34;&gt;?&lt;/span&gt;.to_be_bytes(),
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            compressedlength: &lt;span style=&#34;color:#a6e22e&#34;&gt;cursor&lt;/span&gt;.read_u32::&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;BigEndian&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;()&lt;span style=&#34;color:#f92672&#34;&gt;?&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            uncompressedlength: &lt;span style=&#34;color:#a6e22e&#34;&gt;cursor&lt;/span&gt;.read_u32::&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;BigEndian&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;()&lt;span style=&#34;color:#f92672&#34;&gt;?&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            baserev: &lt;span style=&#34;color:#a6e22e&#34;&gt;cursor&lt;/span&gt;.read_i32::&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;BigEndian&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;()&lt;span style=&#34;color:#f92672&#34;&gt;?&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            linkrev: &lt;span style=&#34;color:#a6e22e&#34;&gt;cursor&lt;/span&gt;.read_i32::&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;BigEndian&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;()&lt;span style=&#34;color:#f92672&#34;&gt;?&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            p1rev: &lt;span style=&#34;color:#a6e22e&#34;&gt;cursor&lt;/span&gt;.read_i32::&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;BigEndian&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;()&lt;span style=&#34;color:#f92672&#34;&gt;?&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            p2rev: &lt;span style=&#34;color:#a6e22e&#34;&gt;cursor&lt;/span&gt;.read_i32::&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;BigEndian&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;()&lt;span style=&#34;color:#f92672&#34;&gt;?&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            hash: {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                &lt;span style=&#34;color:#66d9ef&#34;&gt;let&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;mut&lt;/span&gt; res &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; [&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;u8&lt;/span&gt;; &lt;span style=&#34;color:#ae81ff&#34;&gt;32&lt;/span&gt;];
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                cursor.read_exact(&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;mut&lt;/span&gt; res)&lt;span style=&#34;color:#f92672&#34;&gt;?&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                res
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            },
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        })
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;I made use of the &lt;a href=&#34;https://docs.rs/byteorder/1.3.1/byteorder/&#34;&gt;byteorder&lt;/a&gt;, which
+provides a nice interface for converting bytes of a binary stream into
+big-endian or little-endian integers. We store the hash as a raw array of bytes,
+but we can display it in a nice way like so:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-rust&#34; data-lang=&#34;rust&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;header.hash.iter().map(&lt;span style=&#34;color:#f92672&#34;&gt;|&lt;/span&gt;b&lt;span style=&#34;color:#f92672&#34;&gt;|&lt;/span&gt; format!(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{:02x}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;,b)).collect().join(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&amp;#34;&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This will convert the bytes into hexadecimal digits, collect those digits into a
+vector of strings, and then joins the strings into a single hash digest. This
+code is in the &lt;code&gt;fmt::Display&lt;/code&gt; implementation for &lt;code&gt;RevlogHeader&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Once we have the header, we read the content, and then decompress the content
+using &lt;code&gt;zlib&lt;/code&gt;. In practice we make use of &lt;a href=&#34;https://crates.io/crates/flate2&#34;&gt;the flate2
+crate&lt;/a&gt;, which provides an interface for
+decompressing &lt;code&gt;zlib&lt;/code&gt; streams:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-rust&#34; data-lang=&#34;rust&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;use&lt;/span&gt; flate2::read::ZlibDecoder;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;let&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;mut&lt;/span&gt; gz &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; ZlibDecoder::new(&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;zlib_buffer[&lt;span style=&#34;color:#f92672&#34;&gt;..&lt;/span&gt;]);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;let&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;mut&lt;/span&gt; decompressed_data &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; String::new();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;let&lt;/span&gt; decompressed_data &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; gz.read_to_string(&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;mut&lt;/span&gt; decompressed_data)&lt;span style=&#34;color:#f92672&#34;&gt;?&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;With all of that, we&amp;rsquo;re able to read the data in the changelog file for the test
+repository we are working with:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ cargo run
+header:
+offset: 0
+bitflags: [0, 0]
+compressed length: 111
+uncompressed length: 119
+base revision: 0
+linked revision: 0
+p1: -1
+p2: -1
+hash: 6f3346b94a1fbee70a8103708fd6d485edc88602000000000000000000000000
+
+content: 8047a1de3d215413678766b615c006285e9b68df
+Nathan Goldbaum &amp;lt;nathan12343@gmail.com&amp;gt;
+1558531724 14400
+a_file
+
+adding a_file
+
+header:
+offset: 111
+bitflags: [0, 0]
+compressed length: 120
+uncompressed length: 132
+base revision: 1
+linked revision: 1
+p1: 0
+p2: -1
+hash: 0e80b49a8edc08c2d9ffcdcd7fd71b55de9a7f7f000000000000000000000000
+
+content: d68909f0c439445f34273877884dde9eb55b20e4
+Nathan Goldbaum &amp;lt;nathan12343@gmail.com&amp;gt;
+1558531758 14400
+a_file
+
+adding more text to a_file
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Here we can see that changelog entries store a hash that encodes a reference to
+a manifestlog entry, the commit author and e-mail, a timestamp and timezone
+offset, a list of files that are touched by the changeset, and the commit
+description.&lt;/p&gt;
+&lt;p&gt;Next up I will be exploring the content of manifestlog and filelog files, with
+the ultimate goal of being able to reconstruct snapshots of a repository at a
+given revision, implementing the functionality of &lt;code&gt;hg update&lt;/code&gt;.&lt;/p&gt;
+</description>
+		</item>
+		<item>
+			<title>What&#39;s in a repository?</title>
+			<link>https://ngoldbaum.github.io/posts/repo-contents/</link>
+			<pubDate>Tue, 21 May 2019 16:08:55 -0400</pubDate>
+			<guid isPermaLink="true">https://ngoldbaum.github.io/posts/repo-contents/</guid>
+			<description>&lt;p&gt;When you look inside of a code repository you will likely first see just the
+contents of a codebase at a particular revision. However, the repository also
+contains a compressed version of the contents of every file at every version of
+the codebase. For a Mercurial repository, these compressed data are contained in
+a hidden &lt;code&gt;.hg/&lt;/code&gt; directory. In this blog post I&amp;rsquo;m going to try to figure out what
+data are contained in this directory and how it&amp;rsquo;s structured.&lt;/p&gt;
+&lt;p&gt;To follow along you will need to have Mercurial installed. I&amp;rsquo;m going to use the
+latest version, Mercurial 5.0, which you can install in a number of ways,
+perhaps easiest using the &lt;code&gt;pip&lt;/code&gt; associated with a Python 2.7
+installation. Mercurial 5.0 has beta support for Python 3.5 or newer, so you can
+use that as well if you do not have a Python 2.7 installation set up. To
+install, do the following:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ pip install mercurial --user
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;If you use &lt;code&gt;pip install --user&lt;/code&gt; like I have here you will also need to ensure
+that &lt;code&gt;$HOME/.local/bin&lt;/code&gt; is in your PATH environment variable.&lt;/p&gt;
+&lt;p&gt;Let&amp;rsquo;s take a look at the contents of the &lt;code&gt;.hg&lt;/code&gt; directory for a real-world
+repository. For this purpose let&amp;rsquo;s use the repository for Mercurial itself -
+Mercurial development is tracked using Mercurial, naturally:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ hg clone https://mercurial-scm.org/repo/hg
+real URL is https://www.mercurial-scm.org/repo/hg
+destination directory: hg
+requesting all changes
+adding changesets
+adding manifests
+adding file changes
+added 42325 changesets with 80197 changes to 3352 files (+1 heads)
+179808 new obsolescence markers
+new changesets 9117c6561b0b:2338bdea4474
+updating to bookmark @
+1964 files updated, 0 files merged, 0 files removed, 0 files unresolved
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Depending on how fast your internet connection is, this operation might take a
+while to finish. Mercurial is telling us a lot of information here in its debug
+output that might be helpful for understanding Mercurial&amp;rsquo;s internals. First, it
+tries to figure out if we&amp;rsquo;ve given it a URL or some other URI it can resolve. We
+gave it an HTTPS URL so it just uses that to communicate with the Mercurial
+instance running on Mercurial-scm.org. Second, it prints &amp;ldquo;Requesting all
+changes&amp;rdquo; when it begins to pull the changes from the remote repository. This
+happens in three steps, first obtaining the &lt;em&gt;changesets&lt;/em&gt;, then the &lt;em&gt;manifests&lt;/em&gt;,
+and finally the &lt;em&gt;file changes&lt;/em&gt;. Each of these correspond to different kinds of
+&lt;em&gt;revlog&lt;/em&gt; files on-disk that we will be looking at shortly. Briefly, the &lt;em&gt;revlog&lt;/em&gt;
+is the file format that Mercurial uses to store versioned data, let it be
+metadata, the manifest of files in a repository at any given time, and the
+contents of each file at each revision in history.&lt;/p&gt;
+&lt;p&gt;After these steps, Mercurial lets us know how much data it has processed. For
+this repository there are more than 40,000 commits to more than 3000 files over
+the history of the repository. Next it tells us that this repository contains
+almost 200,000 &lt;em&gt;obsolecence markers&lt;/em&gt;, this is a data format used by the &lt;a href=&#34;https://www.mercurial-scm.org/wiki/EvolveExtension&#34;&gt;evolve
+extension&lt;/a&gt;, which is one of
+Mercurial&amp;rsquo;s coolest features but is also beyond the scope of this post, I will
+try to return to it in the future. The next couple of messages let us know which
+changes were added (since we&amp;rsquo;re cloning, we&amp;rsquo;ve added all of the changes in the
+repository, this message is more useful if we are only pulling a subset of the
+changes), and lets us know that this repository has something called a bookmark
+that is named &lt;code&gt;@&lt;/code&gt; defined. We will talk more about bookmarks later, but if you
+are familiar with git, &lt;code&gt;@&lt;/code&gt; is a bit like the &lt;code&gt;&#39;master&#39;&lt;/code&gt; branch in that new
+clones will have a checkout of &lt;code&gt;@&lt;/code&gt; in the working directory of the
+repository. Finally, it creates the working directory, which contains almost
+2000 files. Note that this count is substantially less than the 3000 files that
+have ever been defined in the repository, some files that were present in the
+past have since been removed.&lt;/p&gt;
+&lt;p&gt;OK, now that we&amp;rsquo;ve cloned the repository, let&amp;rsquo;s take a look at what&amp;rsquo;s inside the
+&lt;code&gt;.hg&lt;/code&gt; directory:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ cd hg/.hg
+$ ls -lh
+total 136K
+-rw-rw-r-- 1 goldbaum goldbaum   57 May 21 16:26 00changelog.i
+-rw-rw-r-- 1 goldbaum goldbaum   43 May 21 16:30 bookmarks
+-rw-rw-r-- 1 goldbaum goldbaum    1 May 21 16:30 bookmarks.current
+-rw-rw-r-- 1 goldbaum goldbaum    8 May 21 16:30 branch
+drwxrwxr-x 2 goldbaum goldbaum 4.0K May 21 16:30 cache
+-rw-rw-r-- 1 goldbaum goldbaum  88K May 21 16:38 dirstate
+-rw-rw-r-- 1 goldbaum goldbaum  501 May 21 16:30 hgrc
+-rw-rw-r-- 1 goldbaum goldbaum   59 May 21 16:26 requires
+drwxrwxr-x 3 goldbaum goldbaum 4.0K May 21 16:30 store
+-rw-rw-r-- 1 goldbaum goldbaum    0 May 21 16:27 undo.bookmarks
+-rw-rw-r-- 1 goldbaum goldbaum    7 May 21 16:27 undo.branch
+-rw-rw-r-- 1 goldbaum goldbaum   41 May 21 16:27 undo.desc
+-rw-rw-r-- 1 goldbaum goldbaum   40 May 21 16:27 undo.dirstate
+drwxrwxr-x 2 goldbaum goldbaum 4.0K May 21 16:35 wcache
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Hmm, this is a lot of stuff. Let&amp;rsquo;s make this a little simpler by starting with a
+new repository with a single file and only a couple of commits:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ cd ../../
+$ mkdir test-repository
+$ cd test-repository
+$ hg init
+$ echo &amp;#34;some data&amp;#34; &amp;gt; a_file
+$ hg add a_file
+$ hg commit -m &amp;#34;adding a_file&amp;#34;
+$ echo &amp;#34;some more data &amp;gt;&amp;gt; a_file
+$ hg commit -m &amp;#34;adding some more text to a_file&amp;#34;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;This creates a repository containing a single file with two revisions:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ hg log --graph
+@  changeset:   1:0e80b49a8edc
+|  tag:         tip
+|  user:        Nathan Goldbaum &amp;lt;nathan12343@gmail.com&amp;gt;
+|  date:        Wed May 22 09:29:18 2019 -0400
+|  summary:     adding more text to a_file
+|
+o  changeset:   0:6f3346b94a1f
+   user:        Nathan Goldbaum &amp;lt;nathan12343@gmail.com&amp;gt;
+   date:        Wed May 22 09:28:44 2019 -0400
+   summary:     adding a_file
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Let&amp;rsquo;s take a look at the contents of the &lt;code&gt;.hg&lt;/code&gt; directory in this new more
+trivial repository:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;☿ ls -lh .hg
+total 44K
+-rw-rw-r-- 1 goldbaum goldbaum   57 May 22 09:27 00changelog.i
+drwxrwxr-x 2 goldbaum goldbaum 4.0K May 22 09:29 cache
+-rw-rw-r-- 1 goldbaum goldbaum   63 May 22 09:28 dirstate
+-rw-rw-r-- 1 goldbaum goldbaum   26 May 22 09:29 last-message.txt
+-rw-rw-r-- 1 goldbaum goldbaum   59 May 22 09:27 requires
+drwxrwxr-x 3 goldbaum goldbaum 4.0K May 22 09:29 store
+-rw-rw-r-- 2 goldbaum goldbaum   63 May 22 09:28 undo.backup.dirstate
+-rw-rw-r-- 1 goldbaum goldbaum    0 May 22 09:29 undo.bookmarks
+-rw-rw-r-- 1 goldbaum goldbaum    7 May 22 09:29 undo.branch
+-rw-rw-r-- 1 goldbaum goldbaum    9 May 22 09:29 undo.desc
+-rw-rw-r-- 2 goldbaum goldbaum   63 May 22 09:28 undo.dirstate
+drwxrwxr-x 2 goldbaum goldbaum 4.0K May 22 09:29 wcache
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Still a decent number of files but definitely less complex. There is a very
+&lt;a href=&#34;https://www.mercurial-scm.org/wiki/FileFormats&#34;&gt;helpful page&lt;/a&gt; on the &lt;a href=&#34;https://www.mercurial-scm.org/wiki/&#34;&gt;Mercurial
+wiki&lt;/a&gt; that describes Mercurial&amp;rsquo;s custom
+file formats, so we can look there to decide which of these files is important.&lt;/p&gt;
+&lt;p&gt;The first, &lt;code&gt;00changelog.i&lt;/code&gt; is there to inform older versions of Mercurial that
+this repository was created with a newer version and is incompatible with the
+old version. Mercurial development proceeds with &lt;a href=&#34;https://www.mercurial-scm.org/wiki/CompatibilityRules&#34;&gt;strict backward
+compatibility&lt;/a&gt;
+guarantees so repositories created by older versions of Mercurial should
+continue to work with newer versions forever, however there&amp;rsquo;s guarantee that an
+old Mercurial client should be able to read a repository created by a new
+one. Since Mercurial is a distributed system it is important for it to be able
+to talk to various versions of itself over the network or when operating on
+repositories on disk.&lt;/p&gt;
+&lt;p&gt;The &lt;code&gt;cache&lt;/code&gt; and &lt;code&gt;wcache&lt;/code&gt; directories contain caches of various kinds used by
+Mercurial and some extensions:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ ls -lh .hg/cache
+total 1.4M
+-rw-rw-r-- 1 goldbaum goldbaum  148 May 21 16:30 branch2-base
+-rw-rw-r-- 1 goldbaum goldbaum  42K May 21 16:30 evoext-obscache-00
+-rw-rw-r-- 1 goldbaum goldbaum 992K May 21 16:30 hgtagsfnodes1
+-rw-rw-r-- 1 goldbaum goldbaum   14 May 21 16:30 rbc-names-v1
+-rw-rw-r-- 1 goldbaum goldbaum 331K May 21 16:30 rbc-revs-v1
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;These aren&amp;rsquo;t documented on the wiki (last updated in 2013) and appear to contain
+opaque binary data. I&amp;rsquo;m going to ignore these for now.&lt;/p&gt;
+&lt;p&gt;The &lt;code&gt;dirstate&lt;/code&gt; file contains information about the state of the working
+directory (e.g. everything in the repository &lt;em&gt;except&lt;/em&gt; for the &lt;code&gt;.hg&lt;/code&gt;
+directory). Quote the Mercurial wiki:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;This file contains information on the current state of the working directory
+in a binary format. It begins with two 20-byte hashes, for first and second
+parent, followed by an entry for each file. Each file entry is of the
+following form:&lt;/p&gt;&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&amp;lt;1-byte state&amp;gt;&amp;lt;4-byte mode&amp;gt;&amp;lt;4-byte size&amp;gt;&amp;lt;4-byte mtime&amp;gt;&amp;lt;4-byte name
+length&amp;gt;&lt;!-- raw HTML omitted --&gt;&lt;/p&gt;&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;If the name contains a null character, it is split into two strings, with the
+second being the copy source for move and copy operations.&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;In addition there is a &lt;a href=&#34;https://www.mercurial-scm.org/wiki/DirState&#34;&gt;wiki page&lt;/a&gt;
+devoted just to this file that contains more information.&lt;/p&gt;
+&lt;p&gt;Let&amp;rsquo;s take a look at the contents of the &lt;code&gt;dirstate&lt;/code&gt; file for our repository:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ xxd .hg/dirstate
+00000000: 0e80 b49a 8edc 08c2 d9ff cdcd 7fd7 1b55  ...............U
+00000010: de9a 7f7f 0000 0000 0000 0000 0000 0000  ................
+00000020: 0000 0000 0000 0000 6e00 0081 b400 0000  ........n.......
+00000030: 195c e54e 9600 0000 0661 5f66 696c 65    .\.N.....a_file
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;If you&amp;rsquo;re unfamiliar with hexadecimal output, I&amp;rsquo;m using the &lt;code&gt;xxd&lt;/code&gt; tool to
+quickly preview the binary content of the &lt;code&gt;dirstate&lt;/code&gt; file. The first column
+tells you how many bytes into the file we are. Each set of 4 hex characters
+corresponds to two bytes in the file. If we look above to where we examined the
+output of &lt;code&gt;hg log&lt;/code&gt; for this repository, you can see that the first 20 bytes of
+this file is the SHA1 &lt;a href=&#34;https://www.mercurial-scm.org/wiki/Nodeid&#34;&gt;nodeid&lt;/a&gt;
+associated with the most recent change (&lt;code&gt;hg log&lt;/code&gt; only shows the first 12 bytes
+of the nodeid for brevity). The &lt;code&gt;nodeid&lt;/code&gt; for a changeset is also sometimes
+called a &lt;em&gt;changeset hash&lt;/em&gt;. It is a cryptographically unique identifier for a
+commit generated by hashing the commit contents along with some metadata for the
+commit. The next 20 bytes is filled with zeros. This is a special nodeid called
+the &lt;em&gt;nullid&lt;/em&gt; that represents a nonexistent commit. These two commits are the
+&lt;em&gt;parents of the working directory&lt;/em&gt;, these are usually referred to as &lt;code&gt;p1&lt;/code&gt; and
+&lt;code&gt;p2&lt;/code&gt;. In this case &lt;em&gt;p1&lt;/em&gt; is the most recent commit, and since the last commit was
+not a merge, &lt;em&gt;p2&lt;/em&gt; is set to the nullid. In addition to being &lt;code&gt;p2&lt;/code&gt; for non-merge
+commits, an empty repository with no commits will have both &lt;code&gt;p1&lt;/code&gt; and &lt;code&gt;p2&lt;/code&gt; set to
+the nullid. An interesting consequence of this choice is that completely
+unrelated repositories can be merged with no issues, since ultimately all
+repositories histories descend from the &amp;ldquo;commit&amp;rdquo; associated with the nullid.&lt;/p&gt;
+&lt;p&gt;Following the nodeid entries for the parents of the commit is the state entry
+for the only file in this repository, &lt;code&gt;a_file&lt;/code&gt;. This consists of a set of binary
+encoded metadata for the file, first a one-byte &amp;ldquo;state&amp;rdquo;, which for this file is
+&amp;ldquo;n&amp;rdquo;, corresponding to a &amp;ldquo;normal&amp;rdquo; state. Other options include &amp;ldquo;a&amp;rdquo; for added, &amp;ldquo;r&amp;rdquo;
+for removed, and &amp;ldquo;m&amp;rdquo; for merged. Following this is 4 bytes containing the &amp;ldquo;mode&amp;rdquo;
+of the file. This corresponds to the bytes &lt;code&gt;000081b4&lt;/code&gt;. In this case the first
+two bytes are null and the UNIX file permissions are encoded in the last two
+bytes. In this case it corresponds to the octal permission code &lt;code&gt;664&lt;/code&gt;&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ stat -c &amp;#34;%a %n&amp;#34; a_file
+664 a_file
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;How this is calculated based on the contents of the &lt;code&gt;dirstate&lt;/code&gt; file is a little
+confusing to me, I&amp;rsquo;d like to come back to this later. Internally Mercurial is
+doing something like this python code:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;&amp;gt;&amp;gt;&amp;gt; import os
+&amp;gt;&amp;gt;&amp;gt; mode = &amp;#39;%3o&amp;#39; % (0x000081b4 &amp;amp; 0o777 &amp;amp; ~os.umask(0))
+&amp;gt;&amp;gt;&amp;gt; mode
+&amp;#39;664&amp;#39;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The first operation makes some sense, masking with &lt;code&gt;0o777&lt;/code&gt; ignores the first two
+and half bytes. The 8 may indicate that the next 12 bits correspond to three
+octal characters, and then the next three characters are the file mask. I&amp;rsquo;m not
+sure why we additionally need to mask with &lt;code&gt;~os.umask(0)&lt;/code&gt;. Digging into the
+history of Mercurial, it looks like this extra masking step &lt;a href=&#34;https://www.mercurial-scm.org/repo/hg/rev/9ab2b3b730ee&#34;&gt;was
+added&lt;/a&gt; to fix issues on
+windows and wasn&amp;rsquo;t in the original implementation, so let&amp;rsquo;s just ignore it for
+now.&lt;/p&gt;
+&lt;p&gt;The next 4 bytes contain the size of the file in bytes (in this case the entry
+is &lt;code&gt;0x19&lt;/code&gt;, or 25 bytes). As an aside, this makes me wonder what happens if you
+add a file bigger than &lt;code&gt;0xFFFFFFFF&lt;/code&gt; bytes! After this come 4 more bytes for the
+modification time, in this case stored as the UNIX timestamp &lt;code&gt;0x5ce54e96&lt;/code&gt;, about
+9:30 AM EST on May 22 2019 when this blog post was being written. This will also
+be not-great in 2038 when the UNIX epoch overflows a 32 bit integer. Next we
+have 4 bytes for the length of the name of the file, in this case &amp;lsquo;0x6&amp;rsquo;, or
+plain old 6 to you and me, the number of characters in the filename. Finally the
+filename itself, which is encoded in UTF-8, but in this case we can get away
+with just reading off the ASCII in the hex dump.&lt;/p&gt;
+&lt;p&gt;Ok, that covers the &lt;code&gt;dirstate&lt;/code&gt; file. There&amp;rsquo;s still a few more files left, so
+let&amp;rsquo;s quickly go over those.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;last-message.txt&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;This file contains the content of the last commit message, presumably for
+caching purposes or so people can set up prompts that don&amp;rsquo;t need to actually
+start up the Mercurial executable.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;requires&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;A record of repository requirements. This tells Mercurial clients what
+features must be supported in order to work with the repository. Old clients
+that do not have support for newer features will refuse to load a repository
+that lists requirements from newer Mercurial versions.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;undo.*&lt;/code&gt; files&lt;/p&gt;
+&lt;p&gt;Files used by the deprecated &amp;ldquo;hg rollback&amp;rdquo; command to undo the last
+transaction. I will ignore these since they are only useful for a deprecated
+feature in Mercurial.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Finally there is one last directory, the &lt;code&gt;store&lt;/code&gt;:&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;$ ls .hg/store
+00changelog.i  data     phaseroots  undo.backupfiles
+00manifest.i   fncache  undo        undo.phaseroots
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;The primary purpose of this directory is to store the bulk of the repository
+data, in the form of &lt;a href=&#34;https://www.mercurial-scm.org/wiki/Revlog&#34;&gt;revlog&lt;/a&gt;
+files. This is a special data structure that was invented by Mercurial&amp;rsquo;s
+original developer to store versioned data in a compressed manner. We will come
+back to revlogs and the contents of this directory in the &lt;a href=&#34;https://ngoldbaum.github.io/posts/revlog/&#34;&gt;next blog
+post&lt;/a&gt;.&lt;/p&gt;
+</description>
+		</item>
+	</channel>
+</rss>

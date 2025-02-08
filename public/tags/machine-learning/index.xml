@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+	<channel>
+		<title>Machine Learning on Nathan Goldbaum</title>
+		<link>https://ngoldbaum.github.io/tags/machine-learning/</link>
+		<description>Recent content in Machine Learning on Nathan Goldbaum</description>
+		<generator>Hugo 0.143.1</generator>
+		<language>en-us</language>
+		<lastBuildDate>Thu, 25 Jul 2019 16:41:04 -0400</lastBuildDate>
+		<atom:link href="https://ngoldbaum.github.io/tags/machine-learning/index.xml" rel="self" type="application/rss+xml"/>
+		<item>
+			<title>Loading MNIST Data in Rust</title>
+			<link>https://ngoldbaum.github.io/posts/loading-mnist-data-in-rust/</link>
+			<pubDate>Thu, 25 Jul 2019 16:41:04 -0400</pubDate>
+			<guid isPermaLink="true">https://ngoldbaum.github.io/posts/loading-mnist-data-in-rust/</guid>
+			<description>&lt;p&gt;I&amp;rsquo;ve been spending a lot of time here at &lt;a href=&#34;https://recurse.com&#34;&gt;the Recurse
+Center&lt;/a&gt; working on problems in the Rust programming
+language. In a previous life I had spent a lot of time doing data intensive
+numerical work in Python but so far I haven&amp;rsquo;t tried to write similar code in
+Rust. This week I&amp;rsquo;ve been going through &lt;a href=&#34;http://michaelnielsen.org/&#34;&gt;Michael
+Nielson&amp;rsquo;s&lt;/a&gt; very nice and easy-to-understand online
+interactive textbook &lt;a href=&#34;http://neuralnetworksanddeeplearning.com/&#34;&gt;Neural Networks and Deep
+Learning&lt;/a&gt; which comes out of the box
+with a Python 2.7 implementations of several neural networks. The Python code
+makes heavy use of NumPy and most mathematical operations make use of
+vectorized computation.&lt;/p&gt;
+&lt;p&gt;The most advanced rust equivalent of NumPy is the
+&lt;a href=&#34;https://docs.rs/ndarray/0.12.1/ndarray/&#34;&gt;ndarray&lt;/a&gt; crate. It even has a
+&lt;a href=&#34;https://docs.rs/ndarray/0.12.1/ndarray/doc/ndarray_for_numpy_users/index.html&#34;&gt;documentation
+page&lt;/a&gt;
+specifically for users of NumPy. My hope was that porting the code should be
+straightforward. It would also give me an opportunity to write some rust code
+that handles the inherently mutable internal state of the neural network. I&amp;rsquo;ve
+been told that this sort of thing can be tricky in Rust so let&amp;rsquo;s find out
+exactly how tricky it is.&lt;/p&gt;
+&lt;p&gt;The book is based around the problem of classifying handwritten digits. This
+problem is a standard benchmark for machine learning algorithms and a lot of
+work has gone into generating a standardized dataset people can use to train and
+verify their neural networks. The python code I&amp;rsquo;m porting loads the data using
+the &lt;a href=&#34;https://docs.python.org/3/library/pickle.html&#34;&gt;pickle protocol&lt;/a&gt; on pickle
+files stored in the code repository. Loading pickle files in rust is not
+something I want to dive into too deeply so instead I decided to use the
+original MNIST datasets available &lt;a href=&#34;http://yann.lecun.com/exdb/mnist/&#34;&gt;from the MNIST page on Yann LeCun&amp;rsquo;s
+website&lt;/a&gt;. These files are stored as &lt;code&gt;idx&lt;/code&gt;
+files &amp;mdash; a simple binary format that is fully described at the bottom of the
+MNIST page. As previous readers of my blog know I have a little bit of
+experience parsing binary formats with rust so this was relatively
+straightforward.&lt;/p&gt;
+&lt;p&gt;The &lt;code&gt;idx&lt;/code&gt; format stores binary array data. There is a magic number that encodes
+the type of the data &amp;mdash; although all the files we are going to be working with
+store data as unsigned 8 bit integers &amp;mdash; and the number of dimensions, followed
+by the size of each dimension and then the data encoded in C order.&lt;/p&gt;
+&lt;p&gt;To represent the data as they exist on-disk I defined a struct named &lt;code&gt;MnistData&lt;/code&gt;
+that wraps a vector containing the dimensions of the data and then a &lt;code&gt;Vec&amp;lt;u8&amp;gt;&lt;/code&gt;
+that contains a flattened representation of the data:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-rust&#34; data-lang=&#34;rust&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#[derive(Debug)]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;MnistData&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    sizes: Vec&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;i32&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    data: Vec&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;u8&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;To actually read the data I created an initializer for the &lt;code&gt;MnistData&lt;/code&gt;
+struct that looks like this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-rust&#34; data-lang=&#34;rust&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;impl&lt;/span&gt; MnistData {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;fn&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;new&lt;/span&gt;(f: &lt;span style=&#34;color:#66d9ef&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;File&lt;/span&gt;) -&amp;gt; Result&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;MnistData, std::io::Error&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;let&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;mut&lt;/span&gt; gz &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; flate2::GzDecoder::new(f);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;let&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;mut&lt;/span&gt; contents: Vec&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;u8&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; Vec::new();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        gz.read_to_end(&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;mut&lt;/span&gt; contents)&lt;span style=&#34;color:#f92672&#34;&gt;?&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;let&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;mut&lt;/span&gt; r &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; Cursor::new(&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;contents);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;let&lt;/span&gt; magic_number &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; r.read_i32::&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;BigEndian&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;()&lt;span style=&#34;color:#f92672&#34;&gt;?&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;let&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;mut&lt;/span&gt; sizes: Vec&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;i32&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; Vec::new();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;let&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;mut&lt;/span&gt; data: Vec&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;u8&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; Vec::new();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;match&lt;/span&gt; magic_number {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#ae81ff&#34;&gt;2049&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&amp;gt;&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                sizes.push(r.read_i32::&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;BigEndian&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;()&lt;span style=&#34;color:#f92672&#34;&gt;?&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            &lt;span style=&#34;color:#ae81ff&#34;&gt;2051&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&amp;gt;&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                sizes.push(r.read_i32::&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;BigEndian&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;()&lt;span style=&#34;color:#f92672&#34;&gt;?&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                sizes.push(r.read_i32::&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;BigEndian&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;()&lt;span style=&#34;color:#f92672&#34;&gt;?&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;                sizes.push(r.read_i32::&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;BigEndian&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;()&lt;span style=&#34;color:#f92672&#34;&gt;?&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            _ &lt;span style=&#34;color:#f92672&#34;&gt;=&amp;gt;&lt;/span&gt; panic!(),
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        r.read_to_end(&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;mut&lt;/span&gt; data)&lt;span style=&#34;color:#f92672&#34;&gt;?&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        Ok(MnistData { sizes, data })
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This makes use of the &lt;a href=&#34;https://crates.io/crates/byteorder&#34;&gt;&lt;code&gt;byteorder&lt;/code&gt;&lt;/a&gt; crate,
+which provides useful methods on rust&amp;rsquo;s I/O types to interpret bytes as various
+kinds of integers in big-endian and little-endian format. It also makes use of
+the &lt;a href=&#34;https://crates.io/crates/flate2&#34;&gt;flate2&lt;/a&gt; crate to decompress the gzip
+files.&lt;/p&gt;
+&lt;p&gt;To actually work with the data we will be converting the images into column
+vectors - e.g. formally a 2D array with a shape of &lt;code&gt;(npixels, 1)&lt;/code&gt;. We&amp;rsquo;ll make
+use of the &lt;a href=&#34;https://docs.rs/ndarray/0.12.1/ndarray/&#34;&gt;&lt;code&gt;ndarray&lt;/code&gt;&lt;/a&gt; crate, which
+provides a type that implements vectorized array computation and matrix
+operations. We can also configure &lt;code&gt;ndarray&lt;/code&gt; to use &lt;code&gt;OpenBLAS&lt;/code&gt;, a C and FORTRAN
+linear algebra library that provides highly optimized impelentations for various
+matrix operations on a large variety of CPUs. If you want to use &lt;code&gt;ndarray&lt;/code&gt; with
+OpenBLAS, you need to explicitly turn that on in the &lt;code&gt;Cargo.toml&lt;/code&gt; file:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-toml&#34; data-lang=&#34;toml&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;[&lt;span style=&#34;color:#a6e22e&#34;&gt;dependencies&lt;/span&gt;]
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;ndarray&lt;/span&gt; = { &lt;span style=&#34;color:#a6e22e&#34;&gt;version&lt;/span&gt; = &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;0.12&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;features&lt;/span&gt; = [&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;blas&amp;#34;&lt;/span&gt;] }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;blas-src&lt;/span&gt; = { &lt;span style=&#34;color:#a6e22e&#34;&gt;version&lt;/span&gt; = &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;0.2.0&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;default-features&lt;/span&gt; = &lt;span style=&#34;color:#66d9ef&#34;&gt;false&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;features&lt;/span&gt; = [&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;openblas&amp;#34;&lt;/span&gt;] }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#a6e22e&#34;&gt;openblas-src&lt;/span&gt; = { &lt;span style=&#34;color:#a6e22e&#34;&gt;version&lt;/span&gt; = &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;0.6.0&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;default-features&lt;/span&gt; = &lt;span style=&#34;color:#66d9ef&#34;&gt;false&lt;/span&gt;, &lt;span style=&#34;color:#a6e22e&#34;&gt;features&lt;/span&gt; = [&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;cblas&amp;#34;&lt;/span&gt;, &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;system&amp;#34;&lt;/span&gt;] }
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;If this works on your operating system and you have the relevant libraries
+installed via e.g. your operating system&amp;rsquo;s package manager this will
+dramatically accelerate linear algebra operations.&lt;/p&gt;
+&lt;p&gt;Now to convert the data as loaded in directly from the &lt;code&gt;idx&lt;/code&gt; file we need to do
+a bit of data munging. I decided to create another struct, &lt;code&gt;MnistImage&lt;/code&gt; that has
+a copy of the image vector and the classification for the image:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-rust&#34; data-lang=&#34;rust&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;#[derive(Debug)]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;pub&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;struct&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;MnistImage&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;pub&lt;/span&gt; image: &lt;span style=&#34;color:#a6e22e&#34;&gt;Array2&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;f64&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;pub&lt;/span&gt; classification: &lt;span style=&#34;color:#66d9ef&#34;&gt;u8&lt;/span&gt;,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;With these definitions, processing the full dataset looks like this:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-rust&#34; data-lang=&#34;rust&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;pub&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;fn&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;load_data&lt;/span&gt;(dataset_name: &lt;span style=&#34;color:#66d9ef&#34;&gt;&amp;amp;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;str&lt;/span&gt;) -&amp;gt; Result&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;Vec&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;MnistImage&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt;, std::io::Error&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;let&lt;/span&gt; filename &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; format!(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;-labels-idx1-ubyte.gz&amp;#34;&lt;/span&gt;, dataset_name);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;let&lt;/span&gt; label_data &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;MnistData::new(&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;(File::open(filename))&lt;span style=&#34;color:#f92672&#34;&gt;?&lt;/span&gt;)&lt;span style=&#34;color:#f92672&#34;&gt;?&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;let&lt;/span&gt; filename &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; format!(&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;{}&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;-images-idx3-ubyte.gz&amp;#34;&lt;/span&gt;, dataset_name);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;let&lt;/span&gt; images_data &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;MnistData::new(&lt;span style=&#34;color:#f92672&#34;&gt;&amp;amp;&lt;/span&gt;(File::open(filename))&lt;span style=&#34;color:#f92672&#34;&gt;?&lt;/span&gt;)&lt;span style=&#34;color:#f92672&#34;&gt;?&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;let&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;mut&lt;/span&gt; images: Vec&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;Array2&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;f64&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; Vec::new();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;let&lt;/span&gt; image_shape &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; (images_data.sizes[&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;] &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; images_data.sizes[&lt;span style=&#34;color:#ae81ff&#34;&gt;2&lt;/span&gt;]) &lt;span style=&#34;color:#66d9ef&#34;&gt;as&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;usize&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; i &lt;span style=&#34;color:#66d9ef&#34;&gt;in&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;..&lt;/span&gt;images_data.sizes[&lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;] &lt;span style=&#34;color:#66d9ef&#34;&gt;as&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;usize&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;let&lt;/span&gt; start &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; i &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt; image_shape;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;let&lt;/span&gt; image_data &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; images_data.data[start&lt;span style=&#34;color:#f92672&#34;&gt;..&lt;/span&gt;start &lt;span style=&#34;color:#f92672&#34;&gt;+&lt;/span&gt; image_shape].to_vec();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        &lt;span style=&#34;color:#66d9ef&#34;&gt;let&lt;/span&gt; image_data: Vec&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;f64&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; image_data.into_iter().map(&lt;span style=&#34;color:#f92672&#34;&gt;|&lt;/span&gt;x&lt;span style=&#34;color:#f92672&#34;&gt;|&lt;/span&gt; x &lt;span style=&#34;color:#66d9ef&#34;&gt;as&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;f64&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;/&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;255.&lt;/span&gt;).collect();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        images.push(Array2::from_shape_vec((image_shape, &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;), image_data).unwrap());
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;let&lt;/span&gt; classifications: Vec&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;u8&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; label_data.data.clone();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;let&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;mut&lt;/span&gt; ret: Vec&lt;span style=&#34;color:#f92672&#34;&gt;&amp;lt;&lt;/span&gt;MnistImage&lt;span style=&#34;color:#f92672&#34;&gt;&amp;gt;&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt; Vec::new();
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; (image, classification) &lt;span style=&#34;color:#66d9ef&#34;&gt;in&lt;/span&gt; images.into_iter().zip(classifications.into_iter()) {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        ret.push(MnistImage {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            image,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;            classification,
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;        })
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    Ok(ret)
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;This function takes the name of the dataset &amp;mdash; for example for the &lt;code&gt;t10k&lt;/code&gt;
+training data this function should pass in the string &lt;code&gt;t10k&lt;/code&gt; and returns a &lt;code&gt;Vec&lt;/code&gt;
+of &lt;code&gt;MnistImage&lt;/code&gt; instances, one for each image in the dataset. To do this it
+loads the classification and image files as an &lt;code&gt;MnistData&lt;/code&gt; struct. Then we
+figure out the dimensions of the image and thus ultimately what the shape of the
+column vector we would like to store should be. Then we create a &lt;code&gt;Vec&lt;/code&gt; from the
+portion of the MNIST data corresponding to the image we want to extract, convert
+the scale of the image from bytescale to floats ranging from 0 to 1 (we do this
+because that&amp;rsquo;s how the data are stored for the Python code), and then finally
+create an image array to store the data. Once we&amp;rsquo;ve created all the image arrays
+we iterate over the images and classifications, creating an &lt;code&gt;MnistImage&lt;/code&gt;
+instance to wrap each image array and classification, which we return.&lt;/p&gt;
+&lt;p&gt;All of this code lives in its own module so we only need to expose the
+&lt;code&gt;MnistImage&lt;/code&gt; struct and the &lt;code&gt;load_data&lt;/code&gt; function to the rest of our code. I like
+how easy it is to enforce separation of concerns in Rust, much easier than in
+Python where separations of concern is more of a social convention.&lt;/p&gt;
+&lt;p&gt;In the next post I&amp;rsquo;ll go into the process of porting the neural network code to
+rust &amp;mdash; stay tuned!&lt;/p&gt;
+</description>
+		</item>
+	</channel>
+</rss>

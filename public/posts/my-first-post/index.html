@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+  <meta charset="utf-8"/>
+  <title>What this blog is for | Nathan Goldbaum</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <meta name="description" content="What this blog is for."/>
+  <meta name="generator" content="Hugo 0.143.1">
+  <link rel="alternate" type="application/rss+xml" href="/index.xml" title="Nathan Goldbaum Feed"/>
+  <link rel="stylesheet" href="/style.14c8ff19b50072be4166d83dec461766751e135f9561937968934a9c0c41c417.css" integrity="sha256-FMj/GbUAcr5BZtg97EYXZnUeE1+VYZN5aJNKnAxBxBc=" crossorigin="anonymous"/>
+  <script defer src="/script.c515b297a254a81ade1515172752b9cd6e495af3db38009536fba14b53f6c7e9.js" integrity="sha256-xRWyl6JUqBreFRUXJ1K5zW5JWvPbOACVNvuhS1P2x+k=" crossorigin="anonymous"></script>
+
+<link rel="stylesheet" href="/custom.css">
+</head>
+<body>
+<div class="pure-g">
+  <div class="pure-u-1-24 pure-u-md-5-24"></div>
+  <div class="pure-u-22-24 pure-u-md-14-24">
+  
+<div class="navigation">
+  <div class="navigation-header">
+    <div class="pure-menu pure-menu-horizontal">
+      <a class="pure-menu-heading pure-menu-link" href="/">
+        Nathan Goldbaum
+      </a>
+    </div>
+  </div>
+  <div class="navigation-content">
+    <div class="pure-menu pure-menu-horizontal">
+      <ul class="pure-menu-list">
+        <li class="pure-menu-item" title="About">
+          <a class="pure-menu-link" href="/about/">About</a>
+        </li>
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/posts">Blog</a>
+        </li>
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/contact">Contact</a>
+        </li>
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/cv.pdf">Résumé</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+  
+<div>
+  <div>
+    <h2 class="post-title">
+      
+      What this blog is for
+    </h2>
+    
+
+  </div>
+  <div>
+    <p>Hello from my second day at <a href="https://recurse.com">the recurse center</a>. I&rsquo;ll be
+at RC for the next 12 weeks working on programming-focused projects, <a href="https://www.recurse.com/manual#sec-pairing">pair
+programming</a>, job-hunting, preparing
+for interviews, and exploring and enjoying Brooklyn and the rest of NYC. I&rsquo;ll be
+using this blog to keep notes on the projects I&rsquo;ll be working on and to share
+more generally with the rest of the world. Hopefully it will also keep me honest
+and on-task.</p>
+<p>Day one mostly consisted of orientation and getting-to-know-you time. In the
+afternoon I spent time getting my new XPS 13 developer edition laptop set up and
+customized they way I like for development. This is my first time using desktop
+linux in about a decade and it&rsquo;s taking some getting used to, but thankfully the
+XPS 13 seems to not have any annoying hardware issues or buggy drivers. I also
+got the bare bones template for this blog set up using
+<a href="https://gohugo.io/">Hugo</a> and GitHub pages.</p>
+<p>Today I&rsquo;ll be starting on the main project I&rsquo;m planning to work on: a deep dive
+into the <a href="https://www.mercurial-scm.org/">Mercurial version control system</a>.</p>
+<h2 id="why-mercurial">Why Mercurial?</h2>
+<p>I used to use Mercurial a bunch in the context of development for
+<a href="https://yt-project.org">yt</a> and <a href="https://enzo-project.org">enzo</a>
+development. In the past few years both projects switched from Mercurial to
+git. This reflects less on the quality of Mercurial as a software project and
+more on the status of the ecosystem around Mercurial. Git has GitHub, GitLab,
+and a plethora of other free tools and services that never took shape around
+Mercurial. While Atlassian&rsquo;s Bitbucket does support Mercurial, it&rsquo;s clear that
+development time is not currently focused on improving things for Mercurial
+users. While recently the <a href="https://sourcehut.org/">sourcehut</a> project added
+Mercurial support, the ecosystem around hg is still very barebones. This works
+for large companies that use hg like Facebook because they can create a custom
+environment and code-hosting solution that works for their systems, but open
+source projects that make use of Mercurial will have trouble attracting
+contributors due to unfamiliarity with the tooling around the version control
+system.</p>
+<p>In my opinion, this state of things is a shame since Mercurial has a lot of
+advantages over Git. Just to take one example, by far my favorite feature of
+Mercurial is its consistent and simple user experience. One clear example is how
+<code>git checkout</code> does completely different things in different contexts. If I want
+to switch to an existing branch, that&rsquo;s <code>git checkout &lt;branch&gt;</code>. If I want to
+create a new branch, that&rsquo;s <code>git checkout -b</code>. If I want to change the content
+of a file in my working directly to reflect the content in the current branch,
+that&rsquo;s <code>git checkout &lt;path&gt;</code>. These are all completely separate operations. With
+Mercurial, these operations would be <code>hg update &lt;branch&gt;</code>,<code>hg branch &lt;branch&gt;</code>,
+and <code>hg revert &lt;path&gt;</code>. Another good exmaple of this is <code>git rebase</code>, which
+encompasses many different kinds of history-editing operations that are handled
+in Mercurial by several different commands:</p>
+<ul>
+<li><code>rebase</code>
+handles the case of moving commits from one branch to another</li>
+<li><code>histedit</code>
+Interactively rewriting history (e.g. <code>git rebase -i</code> except with an awesome
+curses interface).</li>
+<li><code>fold</code>
+Collapse several commits into a single commit.</li>
+<li><code>split</code>
+Split a single commit into many commits.</li>
+<li><code>uncommit</code>
+Undoes a commit leaving the changes behind in the working directory.</li>
+</ul>
+<p>Note that some of these commands are provided by the <a href="https://www.mercurial-scm.org/wiki/EvolveExtension">evolve
+extension</a> which enables
+support for advanced history-editing workflows.</p>
+<p>Mercurial feels like a good fit for a deep dive at the recurse center for social
+reasons as well.</p>
+<h3 id="lots-of-data-structures-and-algorithms-to-explore">Lots of data structures and algorithms to explore</h3>
+<p>For each revision in the history of a codebase, Mercurial must be able to
+efficient reconstruct the state of the code at that revision, store the changes
+to the code made by that revision, and index it in a way that makes it easy to
+search for information related to that commit in a number of different ways. To
+be able to parse the data output by Mercurial I&rsquo;ll need to understand these
+design constraints and reimplement some of the algorithms used by Mercurial on
+my own. This will allow me to learn about <a href="https://en.wikipedia.org/wiki/Merkle_tree">Merkle
+trees</a>, the <a href="https://www.mercurial-scm.org/wiki/Presentations?action=AttachFile&amp;do=view&amp;target=ols-mercurial-paper.pdf">revlog data storage
+scheme</a>
+implemented by Mercurial, and algorithms for merging and diffing text.</p>
+<h3 id="friendly-community">Friendly community</h3>
+<p>I&rsquo;ve <a href="https://www.mercurial-scm.org/repo/hg/log?rev=author%28Goldbaum%29">participated in Mercurial
+development</a>
+in the past and came away very happy with the experience. Development happens
+via a mailing list or via <a href="https://www.phacility.com/phabricator/">phabricator</a>
+as well as on mailing lists and a relatively active <a href="https://www.mercurial-scm.org/wiki/IRC">IRC channel on
+freenode</a>. In addition one of the
+maintainers has agreed to answer questions from me in exchange for me sending in
+patches to clarify and expand on the documentation for Mercurial&rsquo;s internals as
+needed. Basically, I feel comfortable in my ability to access experts to get my
+questions answered in a reasonable time frame as they come up.</p>
+<h3 id="a-large-thoughtfully-structured-python-codebase">A large, thoughtfully structured python codebase.</h3>
+<p>Mercurial is one of the largest and oldest continuously developed open source
+Python codebases in existence. This means that the quality of the code tends to
+be high, enforced by rigorous line-by-line code review of every commit. That&rsquo;s
+not to say there aren&rsquo;t dusty corners with high WTF factors, but hopefully the
+code I&rsquo;ll need to read to understand how Mercurial works won&rsquo;t be too incredibly
+nasty for me to ever have a hope of decoding it.</p>
+<h3 id="an-excuse-to-write-a-bunch-of-rust-code">An excuse to write a bunch of rust code</h3>
+<p>Finally, I&rsquo;m hoping to use this project as an excuse to learn more about the
+rust programming language. My goal is to write as much code as possible in
+rust. I have no expectation that the code I&rsquo;ll be writing will be useful for
+anyone, however there is a long-term plan to <a href="https://www.mercurial-scm.org/wiki/OxidationPlan">rewrite portions of Mercurial in
+rust</a>, so it&rsquo;s possible that
+some of the code I&rsquo;ll be writing will be useful for the project as whole. I&rsquo;m
+excited to learn about rust because the idea of never needing to worry about
+memory corruption or data races while writing low-level code makes me feel
+tingly inside.</p>
+<h2 id="whats-next-and-goals">What&rsquo;s next and goals</h2>
+<p>I&rsquo;ll first start with a dive into the <code>.hg</code> directory of a real-world
+repository. I&rsquo;ll investigate the file structure and try to understand the way
+Mercurial stores its data on-disk. Next, I&rsquo;ll be writing parsers for some of the
+data formats, and eventually hope to get to the point where I have a rust client
+that can parse data from the repository. If I get to the point where I can do
+<code>rust-hg log</code> on a real-world repository, I will be very happy.</p>
+
+  </div>
+</div>
+  <div class="footer">
+  <div class="pure-menu pure-menu-horizontal">
+    <ul class="pure-menu-list">
+      <li class="pure-menu-item fix-cursor-pointer" title="Go to top">
+        <a class="pure-menu-link" id="btn-gototop">
+          <span class="fix-placement-up">&#x21e7;&#xfe0e;</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
+<script type="text/javascript" async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+  });
+  MathJax.Hub.Queue(function() {
+    
+    
+    
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i = 0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+
+  MathJax.Hub.Config({
+  
+  TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+</script>
+
+<script>
+  function setElementsClass(selector, value) {
+    Array.prototype.forEach.call(
+      document.querySelectorAll(selector),
+      function(elem) { elem.className = value; }
+    );
+  }
+
+  setElementsClass('img', 'pure-img');
+  setElementsClass('table', 'pure-table');
+
+  function onResize() {
+      Array.prototype.forEach.call(
+        [{
+          selector: '.pure-menu',
+          hi: 'pure-menu pure-menu-horizontal',
+          lo: 'pure-menu'
+        }, {
+          selector: '.navigation-header-subtitle',
+          hi: 'pure-menu-list navigation-header-subtitle pull-end',
+          lo: 'pure-menu-list navigation-header-subtitle'
+        }, {
+          selector: '.navigation-header',
+          hi: 'navigation-header clearfix',
+          lo: 'navigation-header'
+        }],
+        function(elem) {
+          setElementsClass(
+            elem.selector,
+            document.documentElement.clientWidth >= 768 ? elem.hi : elem.lo
+          );
+        }
+      );
+  }
+  onResize();
+  window.addEventListener('resize', onResize);
+
+  document.getElementById('btn-gototop').addEventListener('click', function() {
+    function scroll() {
+      if (window.pageYOffset > 0) { setTimeout(scroll, 8); }
+      window.scroll(0, window.pageYOffset - 128);
+    }
+    scroll();
+  });
+</script>
+
+  </div>
+  <div class="pure-u-1-24 pure-u-md-5-24"></div>
+</div>
+</body>
+</html>

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+  <meta charset="utf-8"/>
+  <title>Dynamic Programming | Nathan Goldbaum</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <meta name="description" content="An introduction to the concept of dynamic programming."/>
+  <meta name="generator" content="Hugo 0.143.1">
+  <link rel="alternate" type="application/rss+xml" href="/index.xml" title="Nathan Goldbaum Feed"/>
+  <link rel="stylesheet" href="/style.14c8ff19b50072be4166d83dec461766751e135f9561937968934a9c0c41c417.css" integrity="sha256-FMj/GbUAcr5BZtg97EYXZnUeE1+VYZN5aJNKnAxBxBc=" crossorigin="anonymous"/>
+  <script defer src="/script.c515b297a254a81ade1515172752b9cd6e495af3db38009536fba14b53f6c7e9.js" integrity="sha256-xRWyl6JUqBreFRUXJ1K5zW5JWvPbOACVNvuhS1P2x+k=" crossorigin="anonymous"></script>
+
+<link rel="stylesheet" href="/custom.css">
+</head>
+<body>
+<div class="pure-g">
+  <div class="pure-u-1-24 pure-u-md-5-24"></div>
+  <div class="pure-u-22-24 pure-u-md-14-24">
+  
+<div class="navigation">
+  <div class="navigation-header">
+    <div class="pure-menu pure-menu-horizontal">
+      <a class="pure-menu-heading pure-menu-link" href="/">
+        Nathan Goldbaum
+      </a>
+    </div>
+  </div>
+  <div class="navigation-content">
+    <div class="pure-menu pure-menu-horizontal">
+      <ul class="pure-menu-list">
+        <li class="pure-menu-item" title="About">
+          <a class="pure-menu-link" href="/about/">About</a>
+        </li>
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/posts">Blog</a>
+        </li>
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/contact">Contact</a>
+        </li>
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/cv.pdf">Résumé</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+  
+<div>
+  <div>
+    <h2 class="post-title">
+      
+      Dynamic Programming
+    </h2>
+    
+
+  </div>
+  <div>
+    <p>Today I&rsquo;m going to be pausing the Mercurial content in favor of material I
+learned today in the algoganza study group here at the Recurse Center. This
+study group is working together to learn content that commonly comes up in job
+interviews and to prepare for the dreaded whiteboard technical
+interview. Today&rsquo;s session focused on a new concept for me, dynamic programming,
+an approach one can use to solve problems that are conceptually amenable to a
+recursive approach, but where the naive recursive approach might be very slow.</p>
+<h2 id="a-problem-amenable-to-recursion">A Problem Amenable to Recursion</h2>
+<p>To explore these ideas let&rsquo;s think about the Fibonacci sequence. We can
+calculate Fibonacci number <code>$n$</code> with the formula <code>$F_n = F_{n-1} + F_{n-2}$</code>. For <code>$n=0$</code> and <code>$n=1$</code> we impose <code>$F_0 = 0$</code> and <code>$F_1 = 1$</code>. The
+first few numbers in this sequence are <code>$0, 1, 1, 2, 3, 5, 8, 13, \ldots$</code>. This
+formula is amenable to a recursive implementation because we can calculate new
+numbers in the sequence using only information we collected about previous
+numbers in the sequence.</p>
+<p>We can write a recursive implementation of the <code>$F_n$</code> function in Python like
+this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">fib</span>(n):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> n <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> n <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> fib(n<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>) <span style="color:#f92672">+</span> fib(n<span style="color:#f92672">-</span><span style="color:#ae81ff">2</span>)
+</span></span></code></pre></div><p>This works but is <em>extremely</em> slow:</p>
+<pre tabindex="0"><code>In [2]: %time fib(5)
+CPU times: user 20 µs, sys: 1 µs, total: 21 µs
+Wall time: 29.1 µs
+Out[2]: 5
+
+In [3]: %time fib(10)
+CPU times: user 153 µs, sys: 8 µs, total: 161 µs
+Wall time: 98.9 µs
+Out[3]: 55
+
+In [4]: %time fib(15)
+CPU times: user 0 ns, sys: 2.02 ms, total: 2.02 ms
+Wall time: 1.33 ms
+Out[4]: 610
+
+In [5]: %time fib(20)
+CPU times: user 2.81 ms, sys: 179 µs, total: 2.99 ms
+Wall time: 2.48 ms
+Out[5]: 6765
+
+In [6]: %time fib(25)
+CPU times: user 51.1 ms, sys: 0 ns, total: 51.1 ms
+Wall time: 49.6 ms
+Out[6]: 75025
+
+In [7]: %time fib(30)
+CPU times: user 204 ms, sys: 0 ns, total: 204 ms
+Wall time: 202 ms
+Out[7]: 832040
+
+In [8]: %time fib(35)
+CPU times: user 2.03 s, sys: 691 µs, total: 2.03 s
+Wall time: 2.03 s
+Out[8]: 9227465
+
+In [9]: %time fib(40)
+CPU times: user 22.9 s, sys: 3.65 ms, total: 22.9 s
+Wall time: 22.9 s
+Out[9]: 102334155
+</code></pre><p>The problem is that we are calling the <code>fib</code> function far more times than we
+actually need to. Rather than calculating, say, <code>fib(15)</code> only once, we instead
+calculate it over and over again for all numbers greater than 15.</p>
+<h2 id="memoization">Memoization</h2>
+<p>One way to improve this approach is to use <em>memoization</em>. That is, we cache the
+output of our <code>fib</code> function the first time we call the function for a given
+<code>n</code>.  If we call the function again for the same <code>n</code>, we use the cached output
+we saved and avoid recursively recomputing all Fibonacci numbers smaller than
+<code>n</code>. The easiest way to implement memoization in Python is to use a decorator:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">memoize</span>(f):
+</span></span><span style="display:flex;"><span>    cache <span style="color:#f92672">=</span> {}
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">def</span> <span style="color:#a6e22e">wrapped</span>(n):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> n <span style="color:#f92672">not</span> <span style="color:#f92672">in</span> cache:
+</span></span><span style="display:flex;"><span>            cache[n] <span style="color:#f92672">=</span> f(n)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> cache[n]
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> wrapped
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">@memoize</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">fib</span>(n):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> n <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> n <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> fib(n<span style="color:#f92672">-</span><span style="color:#ae81ff">1</span>) <span style="color:#f92672">+</span> fib(n<span style="color:#f92672">-</span><span style="color:#ae81ff">2</span>)
+</span></span></code></pre></div><p>Here we&rsquo;ve created a decorator <code>memoize</code> that stores a dictionary that caches
+the results of the function, using the inputs to the function as the cache
+keys. We then apply the <code>memoize</code> decorator to the <code>fib</code> function, which is
+unchanged from above. This implementation is <em>substantially</em> faster, we&rsquo;re now
+able to calculate <code>$F_{100}$</code> in less than a millisecond:</p>
+<pre tabindex="0"><code>In [14]: %time fib(100)
+CPU times: user 299 µs, sys: 0 ns, total: 299 µs
+Wall time: 316 µs
+Out[14]: 354224848179261915075
+</code></pre><p>Memoization can be very useful if we don&rsquo;t mind paying the memory cost of
+storing all inputs and outputs to all functions. All we need to do is create a
+cache and save results to the cache. The rest of the algorithm is completely
+unchanged and we still retain all the intuition we developed while thinking
+about the recursive approach.</p>
+<h2 id="dynamic-fibonacci">Dynamic Fibonacci</h2>
+<p>There is a more optimal way to do this problem, using a dynamic programming
+approach. To see why this might be the case, consider how the recursive and
+memoized approaches we examined already are <em>top-down</em> approaches. We coded
+things in a very general way such that our implementation doesn&rsquo;t know ahead of
+time how many times the <code>fib</code> function will get called or when it will
+eventually get called with arguments that trigger the terminating conditions for
+the recursion (e.g. <code>n = 1</code> and <code>n = 0</code>). However, we know ahead of time that to
+calculate the 40th Fibonacci number, we are definitely going to need the 0th
+through 39th number. A more clever <em>bottom-up</em> algorithm takes advantage of this
+knowledge. A dynamic Fibonacci solver looks like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">fib</span>(n):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> n <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> n <span style="color:#f92672">==</span> <span style="color:#ae81ff">1</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>    nm1 <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>    nm2 <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">2</span>, n<span style="color:#f92672">+</span><span style="color:#ae81ff">1</span>):
+</span></span><span style="display:flex;"><span>        fibi <span style="color:#f92672">=</span> nm1 <span style="color:#f92672">+</span> nm2
+</span></span><span style="display:flex;"><span>        nm1 <span style="color:#f92672">=</span> nm2
+</span></span><span style="display:flex;"><span>        nm2 <span style="color:#f92672">=</span> fibi
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> fibi
+</span></span></code></pre></div><p>This version uses constant memory and runs in <code>$O(n)$</code> time. It also doesn&rsquo;t use
+the call stack to store temporary variables and is not susceptible to raising
+errors due to running out stack frames (in Python) or overflowing the stack and
+triggering undefined behavior (in an unsafe compiled language like C).</p>
+<h2 id="making-change">Making change</h2>
+<p>Let&rsquo;s close this out with a discussion of one more problem that is amenable to
+this sort of approach. Here we&rsquo;d like to know how many different ways we can
+make change for a dollar using US currency (that is, using pennies, nickles,
+dimes, quarters, half-dollars, and dollar coins). It may not be obvious that
+this problem is amenable to a recursive approach. One way to see this is to
+realize that one subset of solutions is the set of ways to make change for
+99 cents along with one more penny. Another set is the set of ways to make
+change for 95 cents along with another nickel, 90 cents with a dime, and so
+on. All of these solutions depend on the solution of a smaller version of the
+problem - a classic signal that recursion might be useful. What about the other
+solutions? Well, we know that, for example, there is only one way to take a way
+to make change for 99 cents and make it a way to make change for a dollar: add
+another cent. So that means we&rsquo;ve accounted for all of the ways to make a dollar
+with the set of coins that includes pennies. So the other set of solutions is
+the way to make change for a dollar using all coins <em>but</em> pennies. Again, we are
+dealing with a smaller problem, another recursive path.</p>
+<p>Let&rsquo;s take a look at Python code for this recursive algorithm:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">make_change</span>(amount, denominations):
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> len(denominations) <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> amount <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> amount <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">0</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>    num_with_amount <span style="color:#f92672">=</span> make_change(amount <span style="color:#f92672">-</span> denominations[<span style="color:#ae81ff">0</span>], denominations)
+</span></span><span style="display:flex;"><span>    num_without_denom <span style="color:#f92672">=</span> make_change(amount, denominations[<span style="color:#ae81ff">1</span>:])
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> num_with_amount <span style="color:#f92672">+</span> num_without_denom
+</span></span></code></pre></div><p>The terminating cases might look a little weird. The first, checking the number
+of denominations to consider, handles the case where we&rsquo;re asked to make change
+with no coins at all. There&rsquo;s no way to make change in this case, so the number
+of ways to make change from this branch of the recursive call graph is zero. The
+second case, when we&rsquo;re asked to make change for 0 cents, corresponds to the
+case where we&rsquo;ve made exact change already, so this branch contributes exactly
+one way to make change. Finally, if we&rsquo;re asked to make change for a negative
+amount of currency that means that again this is an invalid way to make change
+for a dollar (the value of the coins goes over a dollar).</p>
+<p>As with the Fibonacci numbers, this is a top-down approach. What would the
+bottom-up dynamic approach look like? One way to do it is to make use of a table
+that caches the results for simple cases and then builds up more complicated
+cases as we go:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#f92672">import</span> itertools
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">def</span> <span style="color:#a6e22e">make_change_dynamic</span>(amount, denominations):
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># Generate all combinations of the given denominations</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># e.g. for a penny and a nickel, this would be just a penny, just a </span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># nickel, and a penny and a nickel</span>
+</span></span><span style="display:flex;"><span>    combinations <span style="color:#f92672">=</span> []
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> l <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">1</span>, len(denominations) <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>):
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> x <span style="color:#f92672">in</span> itertools<span style="color:#f92672">.</span>combinations(denominations, l):
+</span></span><span style="display:flex;"><span>            combinations<span style="color:#f92672">.</span>append(x)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># table to cache results</span>
+</span></span><span style="display:flex;"><span>    TABLE <span style="color:#f92672">=</span> {}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># terminating case for making change for 0 cents</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> c <span style="color:#f92672">in</span> combinations:
+</span></span><span style="display:flex;"><span>        TABLE[<span style="color:#ae81ff">0</span>, c] <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">for</span> i <span style="color:#f92672">in</span> range(<span style="color:#ae81ff">1</span>, amount <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span>):
+</span></span><span style="display:flex;"><span>        <span style="color:#75715e"># terminating case for making change with no money</span>
+</span></span><span style="display:flex;"><span>        TABLE[i, ()] <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">for</span> c <span style="color:#f92672">in</span> combinations:
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">if</span> i <span style="color:#f92672">-</span> c[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">0</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#75715e"># terminating case for making change for negative cents</span>
+</span></span><span style="display:flex;"><span>                TABLE[i, c] <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">elif</span> i <span style="color:#f92672">-</span> c[<span style="color:#ae81ff">0</span>] <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>:
+</span></span><span style="display:flex;"><span>                <span style="color:#75715e"># exact change</span>
+</span></span><span style="display:flex;"><span>                TABLE[i, c] <span style="color:#f92672">=</span> <span style="color:#ae81ff">1</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">else</span>:
+</span></span><span style="display:flex;"><span>                TABLE[i, c] <span style="color:#f92672">=</span> TABLE[i <span style="color:#f92672">-</span> c[<span style="color:#ae81ff">0</span>], c] <span style="color:#f92672">+</span> TABLE[i, c[<span style="color:#ae81ff">1</span>:]]
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> TABLE[amount, denominations]
+</span></span></code></pre></div><p>I suspect that there&rsquo;s probably a fancier version that can compute the
+result with constant memory like the Fibonacci case we discussed above.</p>
+<h2 id="futher-reading">Futher Reading</h2>
+<p>Another blog post diving into some more in-depth theory:
+<a href="https://blog.racket-lang.org/2012/08/dynamic-programming-versus-memoization.html">https://blog.racket-lang.org/2012/08/dynamic-programming-versus-memoization.html</a></p>
+<p>A set of dynamic programming practice problems:
+<a href="https://atcoder.jp/contests/dp/tasks">https://atcoder.jp/contests/dp/tasks</a></p>
+
+  </div>
+</div>
+  <div class="footer">
+  <div class="pure-menu pure-menu-horizontal">
+    <ul class="pure-menu-list">
+      <li class="pure-menu-item fix-cursor-pointer" title="Go to top">
+        <a class="pure-menu-link" id="btn-gototop">
+          <span class="fix-placement-up">&#x21e7;&#xfe0e;</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
+<script type="text/javascript" async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+  });
+  MathJax.Hub.Queue(function() {
+    
+    
+    
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i = 0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+
+  MathJax.Hub.Config({
+  
+  TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+</script>
+
+<script>
+  function setElementsClass(selector, value) {
+    Array.prototype.forEach.call(
+      document.querySelectorAll(selector),
+      function(elem) { elem.className = value; }
+    );
+  }
+
+  setElementsClass('img', 'pure-img');
+  setElementsClass('table', 'pure-table');
+
+  function onResize() {
+      Array.prototype.forEach.call(
+        [{
+          selector: '.pure-menu',
+          hi: 'pure-menu pure-menu-horizontal',
+          lo: 'pure-menu'
+        }, {
+          selector: '.navigation-header-subtitle',
+          hi: 'pure-menu-list navigation-header-subtitle pull-end',
+          lo: 'pure-menu-list navigation-header-subtitle'
+        }, {
+          selector: '.navigation-header',
+          hi: 'navigation-header clearfix',
+          lo: 'navigation-header'
+        }],
+        function(elem) {
+          setElementsClass(
+            elem.selector,
+            document.documentElement.clientWidth >= 768 ? elem.hi : elem.lo
+          );
+        }
+      );
+  }
+  onResize();
+  window.addEventListener('resize', onResize);
+
+  document.getElementById('btn-gototop').addEventListener('click', function() {
+    function scroll() {
+      if (window.pageYOffset > 0) { setTimeout(scroll, 8); }
+      window.scroll(0, window.pageYOffset - 128);
+    }
+    scroll();
+  });
+</script>
+
+  </div>
+  <div class="pure-u-1-24 pure-u-md-5-24"></div>
+</div>
+</body>
+</html>

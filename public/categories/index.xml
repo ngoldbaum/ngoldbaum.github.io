@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+	<channel>
+		<title>Categories on Nathan Goldbaum</title>
+		<link>https://ngoldbaum.github.io/categories/</link>
+		<description>Recent content in Categories on Nathan Goldbaum</description>
+		<generator>Hugo 0.143.1</generator>
+		<language>en-us</language>
+		<lastBuildDate>Fri, 26 Jul 2019 14:17:19 -0400</lastBuildDate>
+		<atom:link href="https://ngoldbaum.github.io/categories/index.xml" rel="self" type="application/rss+xml"/>
+	</channel>
+</rss>

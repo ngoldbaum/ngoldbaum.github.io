@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+  <meta charset="utf-8"/>
+  <title>Building a CO₂ Monitor with Python on a Raspberry Pi | Nathan Goldbaum</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <meta name="description" content="A guided tutorial for building a CO2 concentration liveplot."/>
+  <meta name="generator" content="Hugo 0.143.1">
+  <link rel="alternate" type="application/rss+xml" href="/index.xml" title="Nathan Goldbaum Feed"/>
+  <link rel="stylesheet" href="/style.14c8ff19b50072be4166d83dec461766751e135f9561937968934a9c0c41c417.css" integrity="sha256-FMj/GbUAcr5BZtg97EYXZnUeE1+VYZN5aJNKnAxBxBc=" crossorigin="anonymous"/>
+  <script defer src="/script.c515b297a254a81ade1515172752b9cd6e495af3db38009536fba14b53f6c7e9.js" integrity="sha256-xRWyl6JUqBreFRUXJ1K5zW5JWvPbOACVNvuhS1P2x+k=" crossorigin="anonymous"></script>
+
+<link rel="stylesheet" href="/custom.css">
+</head>
+<body>
+<div class="pure-g">
+  <div class="pure-u-1-24 pure-u-md-5-24"></div>
+  <div class="pure-u-22-24 pure-u-md-14-24">
+  
+<div class="navigation">
+  <div class="navigation-header">
+    <div class="pure-menu pure-menu-horizontal">
+      <a class="pure-menu-heading pure-menu-link" href="/">
+        Nathan Goldbaum
+      </a>
+    </div>
+  </div>
+  <div class="navigation-content">
+    <div class="pure-menu pure-menu-horizontal">
+      <ul class="pure-menu-list">
+        <li class="pure-menu-item" title="About">
+          <a class="pure-menu-link" href="/about/">About</a>
+        </li>
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/posts">Blog</a>
+        </li>
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/contact">Contact</a>
+        </li>
+        <li class="pure-menu-item">
+          <a class="pure-menu-link" href="/cv.pdf">Résumé</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+  
+<div>
+  <div>
+    <h2 class="post-title">
+      
+      Building a CO₂ Monitor with Python on a Raspberry Pi
+    </h2>
+    
+
+  </div>
+  <div>
+    <p>A few weeks ago I was scrolling through my twitter feed and happened upon this
+twitter thread from a friend and sometimes colleague <a href="http://www.adamgginsburg.com/">Adam
+Ginsburg</a>, an astronomer at the National Radio
+Astronomy Observatory and soon to be a professor at the University of Florida.</p>
+<p>I&rsquo;ve definitely experienced situations where I had to sit in a room with lots of
+people and felt more and more tired the longer I spent in the room. I had never
+considered that this is more than just being bored, that there might be a
+physiological reason for this feeling. This tweet led me to some discussion from
+Adam Ginsburg, an astronomer at the National Radio Astronomy Observatory who I
+know from my previous life as an astrophysicist, about how he set this up and
+where to buy the CO<!-- raw HTML omitted -->2<!-- raw HTML omitted --> sensor.</p>
+<p>It turns out it&rsquo;s pretty easy to measure the CO<!-- raw HTML omitted -->2<!-- raw HTML omitted --> concentration in a
+room using a sensor that speaks to a computer over a USB connection, in
+particular the website co2meter.com sells a small desktop model for $80 plus
+shipping, with prettier models starting at $100. It was definitely an impulse
+purchase but a few clicks later I was the proud owner of a brand new
+CO<!-- raw HTML omitted -->2<!-- raw HTML omitted --> meter. In my defense the <a href="https://www.washingtonpost.com/business/2019/06/06/why-crowded-meetings-conference-rooms-make-you-so-so-tired/?noredirect=on&amp;utm_term=.52f1fbf1b878">washington
+post</a>
+also thought this was pretty cool.</p>
+<h2 id="what-does-the-research-say">What does the research say?</h2>
+<p>Very high levels of carbon dioxide can lead to <a href="https://www.ncbi.nlm.nih.gov/pubmed/16499405">such unpleasant
+effects</a> as a racing heart,
+arrhythmia, blurred vision, and impaired consciousness. Very high levels, above
+10% concentration (100,000 PPM) can cause convulsions, coma, and death. NASA
+engineers <a href="https://www.youtube.com/watch?v=ry55--J4_VQ">famously</a> <a href="https://history.nasa.gov/SP-350/ch-13-4.html">had to figure
+out</a> how to adapt CO<!-- raw HTML omitted -->2<!-- raw HTML omitted -->
+scrubbers intended for the command module to function correctly on the lunar
+module to save the astronauts on Apollo 13 from such a fate.</p>
+<p>In the last 10 years research has started to emerge that low but elevated levels
+of carbon dioxide, perhaps above 1000 PPM, and definitely above 2000 PPM can
+have <a href="https://www.ncbi.nlm.nih.gov/pubmed/23008272">measurable cognitive
+impacts</a>. As far as I can see with
+my brief literature search (see also <a href="https://iaqscience.lbl.gov/vent-info">this
+review</a> compiled by Berkeley Lab),
+research in this area is mixed, with some high quality studies showing cognitive
+impacts and other equivalently high quality research showing no impacts. Further
+research is likely needed in larger samples more representative of the broader
+population to be sure. However given those caveats, the effects in some of the
+existing studies are dramatic for certain kinds of cognitive tests, especially
+when the CO<!-- raw HTML omitted -->2<!-- raw HTML omitted --> concentration is as much as 5 to 10 times above a
+typical background level of 400 PPM in the atmosphere. It&rsquo;s also entirely
+anecdotal, but these results also jibe with my personal experience, I often get
+sleepy and distracted in crowded, poorly ventilated areas.</p>
+<h2 id="getting-data-from-the-cosub2sub-meter">Getting data from the CO<!-- raw HTML omitted -->2<!-- raw HTML omitted --> meter</h2>
+<p>To talk to the CO<!-- raw HTML omitted -->2<!-- raw HTML omitted --> from a computer you can use the <code>co2meter</code> Python
+package that is available <a href="https://github.com/vfilimonov/co2meter">on github</a>
+and installable <a href="https://pypi.org/project/CO2meter/">via <code>pip</code></a>. This package
+talks to the USB interface using the <a href="https://github.com/signal11/hidapi"><code>hidapi</code>
+interface</a>, in this case using a <a href="https://github.com/trezor/cython-hidapi">Cython
+wrapper</a> around <code>hidapi</code>. To get this
+working on a Linux machine, you will need to install a few packages. On Ubuntu
+18.04, I had to do:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ sudo apt-get install libusb-1.0-0-dev libudev-dev
+</span></span><span style="display:flex;"><span>$ sudo pip install hidapi co2meter
+</span></span></code></pre></div><p>I also needed to set up <code>udev</code> rules for the device interface. The following
+content in a file name <code>/etc/udev/rules.d/98-co2mon.rules</code> worked for me:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-cfg" data-lang="cfg"><span style="display:flex;"><span><span style="color:#a6e22e">SUBSYSTEM</span><span style="color:#f92672">=</span><span style="color:#e6db74">=&#34;usb&#34;, ATTRS{idVendor}==&#34;04d9&#34;, ATTRS{idProduct}==&#34;a052&#34;, GROUP=&#34;plugdev&#34;, MODE=&#34;0666&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">KERNEL</span><span style="color:#f92672">=</span><span style="color:#e6db74">=&#34;hidraw*&#34;, ATTRS{idVendor}==&#34;04d9&#34;, ATTRS{idProduct}==&#34;a052&#34;, GROUP=&#34;plugdev&#34;, MODE=&#34;0666&#34;</span>
+</span></span></code></pre></div><p>and then reload the <code>udev</code> rules:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ sudo udevadm control --reload-rules <span style="color:#f92672">&amp;&amp;</span> udevadm trigger
+</span></span></code></pre></div><p>To check that everything is working, do the following:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ sudo python -c <span style="color:#e6db74">&#34;import co2meter as co2;mon = co2.CO2monitor();print(mon.info)&#34;</span>
+</span></span></code></pre></div><p>Assuming everything is working correctly, you should see output like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span>{<span style="color:#e6db74">&#39;product_name&#39;</span>: <span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;USB-zyTemp&#39;</span>, <span style="color:#e6db74">&#39;vendor_id&#39;</span>: <span style="color:#ae81ff">1241</span>, <span style="color:#e6db74">&#39;serial_no&#39;</span>: <span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;1.40&#39;</span>, <span style="color:#e6db74">&#39;product_id&#39;</span>: <span style="color:#ae81ff">41042</span>, <span style="color:#e6db74">&#39;manufacturer&#39;</span>: <span style="color:#e6db74">u</span><span style="color:#e6db74">&#39;Holtek&#39;</span>}
+</span></span></code></pre></div><p>See the <a href="https://github.com/vfilimonov/co2meter"><code>co2meter</code> documentation</a> for
+more details if you don&rsquo;t use Ubuntu.</p>
+<p>I was only able to get this working by connecting to the USB interface as root,
+it&rsquo;s probably possible to adjust these rules to make the interface available to
+all users. Since I was ultimately doing this on a machine on the Recurse Center
+LAN that would not be exposed to the internet I didn&rsquo;t worry too much about
+figuring out how to avoid mandating gathering the data using root
+privileges. Any suggestions to fix this would be very appreciated.</p>
+<h2 id="making-it-work-on-a-raspberry-pi">Making it work on a Raspberry Pi</h2>
+<p>My ultimate goal was to make a liveplot that people can check throughout the day
+to see the CO<!-- raw HTML omitted -->2<!-- raw HTML omitted --> concentration over time, making it easier to spot when
+the air is getting stuffy. That means I can&rsquo;t just attach the meter to my laptop
+while I&rsquo;m around RC, it needs to be running 24 hours a day in some
+out-of-the-way spot. Thankfully the Recurse Center is lousy with Raspberry Pis -
+there&rsquo;s a box of them along with some Parallella and Arduino boards in the
+closet - and I was able to scrounge up a Raspberry Pi 3 that was gathering dust.</p>
+<p>I&rsquo;ve never really messed with a Raspberry Pi before and it was a fun experience
+getting it set up. I did need to buy a micro-SD card from Target to boot the
+Raspberry Pi operating system from. I also wasted time trying to find an SD card
+reader for a couple hours before realizing that my Dell XPS 13 laptop has a
+built-in microSD card reader. After inserting the card into my laptop I <a href="https://www.raspberrypi.org/documentation/installation/installing-images/">flashed
+a build of
+raspbian</a>
+onto the card using Etcher and booted the Pi and connected the Pi to the
+CO<!-- raw HTML omitted -->2<!-- raw HTML omitted --> meter over USB. I then had to repeat the setup steps I did on my
+laptop to gather the measurements from the meter. Since the Pi runs on an ARM
+chip, it&rsquo;s a little bit harder to set up a custom python environment without
+compiling everything from scratch which takes ages on the Pi&rsquo;s slow CPU and
+limited memory. Thankfully there are Debian Arm64 builds of all the dependencies
+I needed so this wasn&rsquo;t much trouble. Some of the packages on Raspbian Stretch
+are old and I needed to work around bugs and behavior differences in the
+versions of libraries I could easily use on the Pi compared with the more recent
+versions I had on my laptop. Since I set up my Pi, Raspbian Buster came out,
+along with more up-to-date packages in the package manager, so this wouldn&rsquo;t be
+a problem this week like it was when I was putting this together last week.</p>
+<h2 id="gathering-and-liveplotting-data">Gathering and liveplotting data</h2>
+<p>The code for this part lives in a repository on my GitHub <a href="https://github.com/ngoldbaum/rc-co2monitor">called
+<code>rc-co2monitor</code></a>. There are two main
+pieces, a script called <code>gather_data.py</code> that gathers the measurements from the
+USB interface, saves it, and generates a plot using <code>matplotlib</code>. The second
+piece is a very simple flask webapp that exposes the <code>matplotlib</code> plot as
+content in a webpage that people on the Recurse Center LAN can access. This is a
+very bare-bones, not at all fancy setup and there&rsquo;s probably lots of room to
+improve aesthetics, the data display, how the data are saved and stored, and to
+improve reliability in case the Pi crashes.</p>
+<p>The main loop that generates a data gathering event and creates a plot looks
+like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-python" data-lang="python"><span style="display:flex;"><span><span style="color:#66d9ef">if</span> __name__ <span style="color:#f92672">==</span> <span style="color:#e6db74">&#34;__main__&#34;</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">import</span> co2meter
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">while</span> <span style="color:#66d9ef">True</span>:
+</span></span><span style="display:flex;"><span>        tb <span style="color:#f92672">=</span> time<span style="color:#f92672">.</span>time()
+</span></span><span style="display:flex;"><span>        mon <span style="color:#f92672">=</span> co2meter<span style="color:#f92672">.</span>CO2monitor()
+</span></span><span style="display:flex;"><span>        now <span style="color:#f92672">=</span> pandas<span style="color:#f92672">.</span>Timestamp<span style="color:#f92672">.</span>now()
+</span></span><span style="display:flex;"><span>        output_filename <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{}</span><span style="color:#e6db74">-</span><span style="color:#e6db74">{}</span><span style="color:#e6db74">-</span><span style="color:#e6db74">{}</span><span style="color:#e6db74">.csv&#34;</span><span style="color:#f92672">.</span>format(now<span style="color:#f92672">.</span>year, now<span style="color:#f92672">.</span>month, now<span style="color:#f92672">.</span>day)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> <span style="color:#f92672">not</span> os<span style="color:#f92672">.</span>path<span style="color:#f92672">.</span>exists(output_filename):
+</span></span><span style="display:flex;"><span>            <span style="color:#66d9ef">with</span> open(output_filename, <span style="color:#e6db74">&#34;w&#34;</span>) <span style="color:#66d9ef">as</span> f:
+</span></span><span style="display:flex;"><span>                f<span style="color:#f92672">.</span>write(<span style="color:#e6db74">&#34;Time,Concentration,Temperature</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>)
+</span></span><span style="display:flex;"><span>        data <span style="color:#f92672">=</span> mon<span style="color:#f92672">.</span>read_data()
+</span></span><span style="display:flex;"><span>        t <span style="color:#f92672">=</span> time<span style="color:#f92672">.</span>mktime(data<span style="color:#f92672">.</span>index[<span style="color:#ae81ff">0</span>]<span style="color:#f92672">.</span>timetuple())
+</span></span><span style="display:flex;"><span>        row <span style="color:#f92672">=</span> t, np<span style="color:#f92672">.</span>float64(data[<span style="color:#e6db74">&#34;co2&#34;</span>]), np<span style="color:#f92672">.</span>float64(data[<span style="color:#e6db74">&#34;temp&#34;</span>])
+</span></span><span style="display:flex;"><span>        print(<span style="color:#e6db74">&#34;</span><span style="color:#e6db74">{}</span><span style="color:#e6db74">, </span><span style="color:#e6db74">{}</span><span style="color:#e6db74"> PPM, </span><span style="color:#e6db74">{}</span><span style="color:#e6db74"> °C&#34;</span><span style="color:#f92672">.</span>format(<span style="color:#f92672">*</span>row))
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">with</span> open(output_filename, <span style="color:#e6db74">&#34;a&#34;</span>) <span style="color:#66d9ef">as</span> f:
+</span></span><span style="display:flex;"><span>            writer <span style="color:#f92672">=</span> csv<span style="color:#f92672">.</span>writer(f)
+</span></span><span style="display:flex;"><span>            writer<span style="color:#f92672">.</span>writerow(row)
+</span></span><span style="display:flex;"><span>        make_plot()
+</span></span><span style="display:flex;"><span>        tsleep <span style="color:#f92672">=</span> <span style="color:#ae81ff">60</span> <span style="color:#f92672">-</span> (time<span style="color:#f92672">.</span>time() <span style="color:#f92672">-</span> tb)
+</span></span><span style="display:flex;"><span>        <span style="color:#66d9ef">if</span> tsleep <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span>:
+</span></span><span style="display:flex;"><span>            time<span style="color:#f92672">.</span>sleep(tsleep)
+</span></span></code></pre></div><p>I set up an infinite loop that once every 60 seconds reads data from the
+CO<!-- raw HTML omitted -->2<!-- raw HTML omitted --> meter, saves it to a CSV file (and creates the file if it doesn&rsquo;t
+yet exist), generates a plot, and then waits until 60 seconds have passed. Each
+CSV file only contains one day worth of data. I could have used a database for
+this but it seemed simpler to keep everything human readable.</p>
+<p>I&rsquo;m importing <code>co2meter</code> here instead of at module level to make it possible to
+create plots of the data without having access to a CO<!-- raw HTML omitted -->2<!-- raw HTML omitted --> meter on a
+USB interface, this eases debugging on my laptop.</p>
+<p>To plot the data I gather all data captured within the last 4.5 days an then
+plots it using <code>Matplotlib</code>. I spent some time tweaking the plot to make it look
+nice and for the temperature data recorded by the meter made sure to plot using
+both Fahrenheit and Celsius scales for the benefit of the many recursers who are
+not from the USA. The code to generate the plots is a little too verbose to
+include here in this blog post but you can take a look at it on GitHub if you&rsquo;re
+curious. The hardest piece of this was - surprisingly to me - localizing the
+timestamps I write to the CSV file and adjusting things to be in the US/Eastern
+timezone. I&rsquo;ve never really worked with timeseries data that&rsquo;s associated with
+dates and I&rsquo;m sure plenty of readers are not surprised this was surprisingly
+subtle. I ended up heavily using the <code>pandas</code> timetamp and datetime machinery,
+which worked although it wasn&rsquo;t terribly ergonomic for me.</p>
+<p>Here&rsquo;s what the plot looks like in the end:</p>
+<p><img src="/co2.png" alt="CO2 plot"></p>
+<p>There are definitely spikes in the CO<!-- raw HTML omitted -->2<!-- raw HTML omitted --> concentration in the
+afternoons. The 25th was a very hot day and opening the windows wasn&rsquo;t really an
+option, however earlier in the week people noticed that the CO<!-- raw HTML omitted -->2<!-- raw HTML omitted -->
+concentration was getting high and opened the windows, preventing a very large
+spike from developing. You can also see how when people opened the windows on
+the 26th, another hot day, the temperature spiked. Unfortunately over the Summer
+it&rsquo;s a bit of a tradeoff between being comfortable in terms of temperature and
+comfortable in terms of stuffy air.</p>
+<h2 id="recurse-center-community-reaction">Recurse Center community reaction</h2>
+<p>Since I set the CO<!-- raw HTML omitted -->2<!-- raw HTML omitted --> meter up people have started opening up the
+windows in the afternoon so I think it&rsquo;s having a real effect, although we&rsquo;ll
+see how people react once the CO<!-- raw HTML omitted -->2<!-- raw HTML omitted --> concentration is high and it&rsquo;s hot
+and humid outside. I also presented the monitor project in <a href="https://docs.google.com/presentation/d/18VCT07ryB_VDw34ojSeqSMqq3uuvf-nrWGNdVvazlSE/edit">a lightning
+talk</a>.
+Afterwards one of the of the Recurse Center asked me what they should do about
+the high CO<!-- raw HTML omitted -->2<!-- raw HTML omitted --> concentration. I didn&rsquo;t really have any great answers
+besides perhaps buying more plants for the space, although I think to really
+make a dent one would need to buy <em>a lot</em> of plants or perhaps acquire some vats
+of algae.</p>
+<p>In the end I think this was a success. Hopefully this project will be able to
+continue running in the space even after I leave. I&rsquo;m planning to watch out for
+crashes and see if I can find ways to make it work without any human
+intervention since there&rsquo;s no guarantee anyone will want to work on this after I
+leave. If you&rsquo;re curious what this looks like in the space, here&rsquo;s a little
+portrait of the full setup:</p>
+<p><img src="/meter.jpg" alt="The meter in all its glory"></p>
+
+  </div>
+</div>
+  <div class="footer">
+  <div class="pure-menu pure-menu-horizontal">
+    <ul class="pure-menu-list">
+      <li class="pure-menu-item fix-cursor-pointer" title="Go to top">
+        <a class="pure-menu-link" id="btn-gototop">
+          <span class="fix-placement-up">&#x21e7;&#xfe0e;</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
+<script type="text/javascript" async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  MathJax.Hub.Config({
+  tex2jax: {
+    inlineMath: [['$','$'], ['\\(','\\)']],
+    displayMath: [['$$','$$']],
+    processEscapes: true,
+    processEnvironments: true,
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+    TeX: { equationNumbers: { autoNumber: "AMS" },
+         extensions: ["AMSmath.js", "AMSsymbols.js"] }
+  }
+  });
+  MathJax.Hub.Queue(function() {
+    
+    
+    
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i = 0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+
+  MathJax.Hub.Config({
+  
+  TeX: { equationNumbers: { autoNumber: "AMS" } }
+  });
+</script>
+
+<script>
+  function setElementsClass(selector, value) {
+    Array.prototype.forEach.call(
+      document.querySelectorAll(selector),
+      function(elem) { elem.className = value; }
+    );
+  }
+
+  setElementsClass('img', 'pure-img');
+  setElementsClass('table', 'pure-table');
+
+  function onResize() {
+      Array.prototype.forEach.call(
+        [{
+          selector: '.pure-menu',
+          hi: 'pure-menu pure-menu-horizontal',
+          lo: 'pure-menu'
+        }, {
+          selector: '.navigation-header-subtitle',
+          hi: 'pure-menu-list navigation-header-subtitle pull-end',
+          lo: 'pure-menu-list navigation-header-subtitle'
+        }, {
+          selector: '.navigation-header',
+          hi: 'navigation-header clearfix',
+          lo: 'navigation-header'
+        }],
+        function(elem) {
+          setElementsClass(
+            elem.selector,
+            document.documentElement.clientWidth >= 768 ? elem.hi : elem.lo
+          );
+        }
+      );
+  }
+  onResize();
+  window.addEventListener('resize', onResize);
+
+  document.getElementById('btn-gototop').addEventListener('click', function() {
+    function scroll() {
+      if (window.pageYOffset > 0) { setTimeout(scroll, 8); }
+      window.scroll(0, window.pageYOffset - 128);
+    }
+    scroll();
+  });
+</script>
+
+  </div>
+  <div class="pure-u-1-24 pure-u-md-5-24"></div>
+</div>
+</body>
+</html>
