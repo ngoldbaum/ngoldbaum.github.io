@@ -13,8 +13,8 @@ date: 2019-06-17T11:44:59-04:00
 
 {{< ico "stack-overflow" "material" >}} [ngoldbaum](https://stackoverflow.com/users/1382869/ngoldbaum)
 
-{{< ico "lobsters" "material" >}} [ngoldbaum](https://lobste.rs/u/ngoldbaum)
+{{< ico "lobsters" "custom" >}} [ngoldbaum](https://lobste.rs/u/ngoldbaum)
 
-{{< ico "hacker-news" "material" >}} [ngoldbaum](https://news.ycombinator.com/user?id=ngoldbaum)
+{{< ico "hacker-news" "custom" >}} [ngoldbaum](https://news.ycombinator.com/user?id=ngoldbaum)
 
 

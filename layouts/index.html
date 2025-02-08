@@ -1,13 +1,5 @@
 {{- define "main" }}
-{{- $showfull := default false .Site.Params.showFullContent }}
-{{- $orderkey := default "date" .Site.Params.orderPageParam }}
-{{- $orderrev := default true .Site.Params.orderPageReverse }}
-{{- $pagepool := where .Site.RegularPages "Section" "in" .Site.Params.mainSections }}
-{{- $pagepool := $pagepool.ByParam $orderkey }}
-{{- $pagepool := cond $orderrev $pagepool.Reverse $pagepool }}
 {{ with .GetPage `about.md` }}
-  <h1>{{ .Title }}</h1>
   {{ .Content }}
 {{ end }}
-{{ partial "pagination.html" . }}
 {{- end }}
