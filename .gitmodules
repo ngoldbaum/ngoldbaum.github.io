@@ -2,3 +2,9 @@
 	path = public
 	url = git@github.com:ngoldbaum/ngoldbaum.github.io.git
 	branch = master
+[submodule "themes/slick"]
+	path = themes/slick
+	url = https://github.com/spookey/slick.git
+[submodule "themes/hugo-shortcode-roneo-collection"]
+	path = themes/hugo-shortcode-roneo-collection
+	url = https://gitlab.com/Roneo/hugo-shortcode-roneo-collection.git
