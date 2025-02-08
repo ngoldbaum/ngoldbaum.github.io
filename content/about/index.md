@@ -6,13 +6,13 @@ title: "About"
 src="/ngoldbaum2019.jpg"
 alt="Nathan Goldbaum" >}}
 
-I am a Senior Software Engineer at [Quansight Labs](), where I am currently working on
-[community support for free-threaded
+I am a Senior Software Engineer at [Quansight Labs](https://labs.quansight.org),
+where I am currently working on [community support for free-threaded
 Python](https://py-free-threading.github.io). During the course of this project,
 I led the effort to support [free-threaded
 Python](https://docs.python.org/3/whatsnew/3.13.html#whatsnew313-free-threaded-cpython)
-in [NumPy](https://numpy.org/) and helped add support for free-threaded Python to
-foundational community Python projects accross the ecosystem. I also am the
+in [NumPy](https://numpy.org/) and helped add support for free-threaded Python
+to foundational community Python projects accross the ecosystem. I also am the
 author or editor of most of the documentation on
 [py-free-threading.github.io](https://py-free-threading.github.io), which I hope
 will be a lasting community resource.
@@ -42,7 +42,10 @@ NumPy 2.0 and authored [NEP
 community should accept the new feature. This in-depth design process led to a
 number of radical improvements to the initial design. I described my experience
 going from very little low-level Python C API experience to becoming a NumPy
-maintainer in a [talk at the Scipy 2024 conference](https://www.youtube.com/watch?v=cUhP0OCSWsk).
+maintainer in a [talk at the Scipy 2024
+conference](https://www.youtube.com/watch?v=cUhP0OCSWsk). The talk was
+transcribed into a blog post on [the Quansight
+blog](https://quansight.com/post/my-numpy-year-creating-a-dtype-for-the-next-generation-of-scientific-computing/).
 
 I took time off from work on software From March 2020 to October 2022 to help
 support my family and to recover from burnout.
@@ -68,11 +71,11 @@ Applications](http://www.ncsa.illinois.edu/) in the [Data Exploration
 Lab](https://data-exp-lab.github.io/).
 
 At that time, I was a maintainer of The [`yt`](https://yt-project.org) Project,
-a Python toolkit for working with 3D simulation data. I am a member of the `yt`
-steering committee and helped bring `yt` under the umbrella of
-[NumFOCUS](https://numfocus.org/project/yt). I was also the primary maintainer
-of [`unyt`](https://github.com/yt-project/unyt/), a library for handling data
-with physical units in Python. I published [a
+a Python toolkit for working with 3D simulation data. As a member of the `yt`
+steering committee, I helped bring `yt` under the umbrella of
+[NumFOCUS](https://numfocus.org/project/yt). I also helped write, publish, and
+maintain [`unyt`](https://github.com/yt-project/unyt/), a library for handling
+data with physical units in Python. I published [a
 paper](https://joss.theoj.org/papers/dbc27acb614dd33eb02b029ef20e7fe7) in the
 Journal of Open Source Software describing the library, its origins, and
 comparing performance and software engineering decisions with competing Python
