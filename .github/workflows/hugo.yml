@@ -71,7 +71,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          folder: public
-          repository-name: ngoldbaum.github.io
+        uses: actions/deploy-pages@v4
