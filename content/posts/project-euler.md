@@ -156,8 +156,6 @@ panic](https://github.com/nox/rust-rfcs/blob/master/text/0560-integer-overflow.m
 I find this delightful compared with my experiences in other low-level languages
 like C or C++:
 
-{{< tweet 1134102247149887488 >}}
-
 In this way we know immediately when the builtin integer types are no longer
 sufficient and we need to switch to an arbitrary-precision integer arithmetic
 library. 

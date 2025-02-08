@@ -3,22 +3,18 @@ title: "Contact"
 date: 2019-06-17T11:44:59-04:00
 ---
 
-{{% fontawesome envelope %}} [nathan.goldbaum@gmail.com](mailto:nathan.goldbaum@gmail.com)
+{{< ico "mail-opened" >}} [nathan.goldbaum@gmail.com](mailto:nathan.goldbaum@gmail.com)
 
-{{% fontawesome phone %}} (720)-201-2231
+{{< ico "phone" >}} (720)-201-2231
 
-{{% fontawesome github %}} [ngoldbaum](https://github.com/ngoldbaum)
+{{< ico "github" "material" >}} [ngoldbaum](https://github.com/ngoldbaum)
 
-{{% fontawesome twitter %}} [@njgoldbaum](https://twitter.com/njgoldbaum)
+{{< ico "linkedin" "material" >}} [ngoldbaum](https://www.linkedin.com/in/ngoldbaum/)
 
-{{% fontawesome linkedin %}} [ngoldbaum](https://www.linkedin.com/in/ngoldbaum/)
+{{< ico "stack-overflow" "material" >}} [ngoldbaum](https://stackoverflow.com/users/1382869/ngoldbaum)
 
-{{% fontawesome stack-overflow %}} [ngoldbaum](https://stackoverflow.com/users/1382869/ngoldbaum)
+{{< ico "lobsters" "material" >}} [ngoldbaum](https://lobste.rs/u/ngoldbaum)
 
-{{% fontawesome lobsters %}} [ngoldbaum](https://lobste.rs/u/ngoldbaum)
-
-{{% fontawesome hacker-news %}} [ngoldbaum](https://news.ycombinator.com/user?id=ngoldbaum)
-
-{{% fontawesome reddit %}} [nathan12343](https://www.reddit.com/user/nathan12343)
+{{< ico "hacker-news" "material" >}} [ngoldbaum](https://news.ycombinator.com/user?id=ngoldbaum)
 
 

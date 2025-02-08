@@ -17,8 +17,6 @@ twitter thread from a friend and sometimes colleague [Adam
 Ginsburg](http://www.adamgginsburg.com/), an astronomer at the National Radio
 Astronomy Observatory and soon to be a professor at the University of Florida.
 
-{{< tweet 1137337694072258560 >}}
-
 I've definitely experienced situations where I had to sit in a room with lots of
 people and felt more and more tired the longer I spent in the room. I had never
 considered that this is more than just being bored, that there might be a

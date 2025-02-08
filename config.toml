@@ -1,14 +1,17 @@
 baseURL = "https://ngoldbaum.github.io/"
 languageCode = "en-us"
 title = "Nathan Goldbaum"
-theme = "slick"
+theme = ['hugo-shortcode-roneo-collection', "slick"]
 pygmentsCodeFences = true
+
+[params]
+    custom_css = ["assets/custom.css"]
 
 [menu]
   [[menu.main]]
   identifier = "about"
   name = "About"
-  url = "/"
+  pageRef = "/about"
 
   [[menu.main]]
   identifier = "blog"
